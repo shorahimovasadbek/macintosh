@@ -1,0 +1,100 @@
+<section class="container-fluid" *ngIf="is_access">
+  <h4 class="page-title mb-3">Investorlar</h4>
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink="/investors">Investorlar</a></li>
+    <li class="breadcrumb-item active">Investor</li>
+  </ol>
+
+  <div class="row" *ngIf="data">
+    <div class="col-sm-6">
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <h5>Inventitsiyalar</h5>
+            <div class="table-responsive">
+              <table class="table table-bordered table-centered">
+                <thead>
+                  <tr>
+                    <th>Summa</th>
+                    <th>Sana</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of data.investments; let i = index">
+                    <td>{{item.amount | currency :'USD' : 'symbol' : '1.0-0' | replace:',':' '}}</td>
+                    <td>{{item.created_at | date: 'dd.MM.YYYY HH:mm' }}</td>
+                  </tr>
+                </tbody>
+                <tbody *ngIf="data && data.investments.length === 0 ">
+                  <tr>
+                    <td colspan="8" align="center" valign="top" class="dataTables_empty">Jadvalda ma'lumotlar yo'q</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6">
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <h5>Investor oylik ulushi</h5>
+            <div class="table-responsive">
+              <table class="table table-bordered table-centered">
+                <thead>
+                  <tr>
+                    <th>Status</th>
+                    <th>Summa</th>
+                    <th>Sana</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of data.investorMonthlySalary; let i = index">
+                    <td class="d-flex justify-content-between align-items-center" *ngIf="!statusEdit">
+                      <span class="badge bg-warning" *ngIf="item.status === 0">To'lanmagan</span>
+                      <span class="badge bg-success" *ngIf="item.status === 1">To'langan</span>
+                      <i class="ti-pencil btn btn-outline-primary btn-sm" (click)="statusEdit = true"></i>
+                    </td>
+                    <td *ngIf="statusEdit">
+                      <select name="status" class="form-control" [(ngModel)]="item.status" (ngModelChange)="changeStatus(item)">
+                        <option value="0">To'lanmagan</option>
+                        <option value="1">To'langan</option>
+                        <option selected disabled hidden [value]="item.status">
+                          <span class="badge bg-warning" *ngIf="item.status === 0">To'lanmagan</span>
+                          <span class="badge bg-success" *ngIf="item.status === 1">To'langan</span>
+                        </option>
+                      </select>
+                    </td>
+                    <td>{{item.amount | currency :'USD' : 'symbol' : '1.0-0' | replace:',':' '}}</td>
+                    <td>{{item.month }}</td>
+                  </tr>
+                </tbody>
+                <tbody *ngIf="data && data.investorMonthlySalary.length == 0">
+                  <tr>
+                    <td colspan="8" align="center" valign="top" class="dataTables_empty">Jadvalda ma'lumotlar yo'q</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="row" *ngIf="!is_access">
+  <div class="col-lg-5 mx-auto">
+    <div class="card mt-5">
+      <div class="card-body">
+        <div class="ex-page-content text-center">
+          <h1 class="mt-5 mb-4">403!</h1>
+          <h5 class="font-16 text-muted mb-5">Bu sahifaga kirishga huquqingiz yo'q</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

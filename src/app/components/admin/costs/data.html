@@ -1,0 +1,144 @@
+<section class="container-fluid" *ngIf="permissions.can('index', 'CostController')">
+  <div class="row mt-3">
+    <div class="col">
+      <h4 class="page-title mb-3">Xarajatlar</h4>
+    </div>
+
+    <div class="col-auto d-flex align-items-center mb-2">
+      <button type="button" class="btn btn-outline-info" (click)="search()"><i
+          class="ti-search me-1"></i>Filtr</button>
+      <button type="button" class="btn btn-outline-secondary mx-1" (click)="clearForm()"><i
+          class="ti-reload me-1"></i>Qayta
+        o'rnatish</button>
+
+      <a *ngIf="permissions.can('update', 'CostController')" routerLink="/cost/add" class="btn btn-outline-primary"><i class="ti-plus me-1"></i>Qo'shish</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered table-centered">
+          <thead>
+            <tr>
+              <th>N#</th>
+              <th>Xarajat</th>
+              <th>Turi</th>
+              <th>IMEI</th>
+              <th>Model</th>
+              <th>Summa</th>
+              <th>Sana</th>
+              <th [width]="80">Harakatlar</th>
+            </tr>
+          </thead>
+          <tbody *ngIf="dataItems && dataItems.length > 0">
+            <tr *ngFor="let item of dataItems; let i = index">
+              <td>{{i+1}}</td>
+              <td>{{item.name}}</td>
+              <td>{{item.type}}</td>
+              <td>{{item.imei}}</td>
+              <td>{{item.model}}</td>
+              <td>{{item.amount | currency: 'USD' | replace :',':' '}}</td>
+              <td>{{item.created_at | date: 'dd.MM.YYYY' }}</td>
+              <td>
+                <div class="dropdown d-inline-block" ngbDropdown container="body" *ngIf="permissions.can('update', 'CostController')">
+                  <a class="dropdown-toggle arrow-none" role="button" ngbDropdownToggle>
+                    <i class="las la-ellipsis-v font-20 text-muted"></i>
+                  </a>
+                  <div class="dropdown-menu-right" ngbDropdownMenu>
+                    <a class="dropdown-item" routerLink="/cost/{{item.id}}">Tahrirlash</a>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr class="bg-light">
+              <td class="bg-transparent"></td>
+              <td class="bg-transparent"></td>
+              <td class="bg-transparent"></td>
+              <td class="bg-transparent"></td>
+              <td class="bg-transparent"></td>
+              <td class="bg-transparent"><strong>Ummumiy xarajatlar:</strong> {{totalCost | currency: 'USD' | replace:',':' ' }}</td>
+              <td class="bg-transparent"></td>
+            </tr>
+          </tbody>
+          <tbody *ngIf="dataItems && dataItems.length == 0">
+            <tr>
+              <td colspan="8" align="center" valign="top" class="dataTables_empty">Jadvalda ma'lumotlar
+                yo'q</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-footer">
+        <ngb-pagination *ngIf="dataItems" [collectionSize]="totalPage" [pageSize]="pageSize" [(page)]="currentPage"
+          [maxSize]="4" [rotate]="true" (pageChange)="pageChanged($event)">
+          <ng-template ngbPaginationPrevious>&laquo; Oldingisi</ng-template>
+          <ng-template ngbPaginationNext>Keyingi &raquo;</ng-template>
+        </ngb-pagination>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sweet_alert-content overflow-auto" [ngClass]="{'open':alertShowSearch}">
+  <form class="sweet_alert-body" #dataForm="ngForm">
+    <h2 class="sweet_alert-title">Filtr</h2>
+    <div class="sweet_alert-inner">
+      <div class="form-group mb-3">
+        <label class="form-label">Xarajat</label>
+        <input type="text" class="form-control" name="name" [(ngModel)]="filter.name">
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label">Summa</label>
+        <input type="text" class="form-control" name="amount" [(ngModel)]="filter.amount">
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label">Turi</label>
+        <select class="form-control" name="type" [(ngModel)]="filter.type">
+          <option value="Tannarx">Tannarx</option>
+          <option value="VozKechilgan">Voz kechilgan</option>
+          <option value="Boshqa">Boshqa</option>
+          <option [value]="filter.type" selected disabled hidden>Turini tanlang</option>
+        </select>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label">Sana (dan)</label>
+        <input type="date" class="form-control" name="from" [(ngModel)]="filter.from">
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label">Sana (gacha)</label>
+        <input type="date" class="form-control" name="to" [(ngModel)]="filter.to">
+      </div>
+
+    </div>
+    <div class="sweet_alert-buttons">
+      <button class="btn btn-outline-secondary btn-r" type="button" [disabled]="loading"
+        (click)="closeAlerPopup()">Yopish</button>
+      <button *ngIf="!filter.report_type"  type="submit" (click)="getDataFilter()" class="btn btn-primary btn-l"
+        [disabled]="!dataForm.valid || loading">Izlash<img *ngIf="loading" src="/assets/images/spinner.svg"
+          class="spinner-load"></button>
+      <button *ngIf="filter.report_type" type="submit" (click)="getStats()" class="btn btn-primary btn-l"
+        [disabled]="!dataForm.valid || loading">Izlash<img *ngIf="loading" src="/assets/images/spinner.svg"
+          class="spinner-load"></button>
+    </div>
+  </form>
+</div>
+
+<section class="row" *ngIf="!permissions.can('index', 'CostController')">
+	<div class="col-lg-5 mx-auto">
+		<div class="card mt-5">
+			<div class="card-body">
+				<div class="ex-page-content text-center">
+					<h1 class="mt-5 mb-4">403!</h1>
+          
+					<h5 class="font-16 text-muted mb-5">Bu sahifaga kirish taqiqlangan</h5>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

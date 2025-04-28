@@ -1,0 +1,435 @@
+<section class="container-fluid" *ngIf="permissions.can('post_createOrder', 'OrderController')">
+  <h4 class="page-title mb-3">Buyurtma</h4>
+  <div class="d-flex justify-content-between">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/orders">Buyurtmalar</a></li>
+      <li class="breadcrumb-item active">Buyurtma</li>
+    </ol>
+  </div>
+
+  <div class="row" *ngIf="!typeDevicAccess">
+    <div class="col-sm-8">
+      <div class="card">
+        <div class="card-body row">
+
+          <div class="col-sm-6 mb-3">
+            <label class="form-label required">Nima buyurishni tanlang</label>
+            <select class="form-control" name="box1" [(ngModel)]="data.type" (ngModelChange)="onChangeDevices($event)">
+              <option value="accessory">accessory</option>
+              <option value="device">device</option>
+            </select>
+          </div>
+
+          <div class="col-sm-6 mb-3">
+            <label class="form-label required">Sotuv turini tanlang</label>
+            <select class="form-control" name="box2" [(ngModel)]="data.is_cash"
+              (ngModelChange)="onChangeAccess($event)">
+              <option value="false">Bo'lib to'lash</option>
+              <option value="true">Naqd</option>
+            </select>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form #dataForm="ngForm" *ngIf="data">
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="card">
+          <div class="card-body row">
+
+            <div class="form-group mb-3" *ngIf="qurilma  || accessory ">
+              <label class="form-label">Mijoz</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                type="text" class="form-control col" name="client" [(ngModel)]="clients_id"
+                [resultFormatter]="formatMatches" [inputFormatter]="formatMatches" [ngbTypeahead]="searchClient" />
+            </div>
+
+            <div class="mb-3" *ngIf="qurilma && bolibtolashQurilma">
+              <div class="mb-3">
+                <label class="form-label">Akkount (Gmail)</label>
+                <input class="form-control" type="email" name="account" [(ngModel)]="data.account" email>
+              </div>
+            </div>
+
+            <div class="col-sm-12 mb-3" *ngIf="qurilma && naxtQurilma || qurilma && bolibtolashQurilma">
+              <label class="form-label" for="Label">Qurilma</label>
+              <ngx-select [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                [items]="devicesFilter" name="device_id" optionTextField="displayText" optionValueField="id"
+                placeholder="Qurilmani tanlang" mask="separator.2" [(ngModel)]="data.device_id">
+                <ng-template let-option="option">
+                  {{ option.model }}
+                </ng-template>
+              </ngx-select>
+            </div>
+
+            <div class="col-sm-6 mb-3" *ngIf="accessory && naxtAccess || accessory && bolibtolashAccess">
+              <label class="form-label" for="Label">Accessuar</label>
+              <ngx-select [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                [items]="AccessuarMassivFilter" name="device_id" optionTextField="model" optionValueField="id"
+                placeholder="Accessuarni tanlang" mask="separator.2" [(ngModel)]="data.device_id">
+                <ng-template let-option="option">
+                  {{ option.model }}
+                </ng-template>
+              </ngx-select>
+            </div>
+
+
+            <div class="col-sm-6 mb-3" *ngIf="qurilma && bolibtolashQurilma || qurilma && naxtQurilma">
+              <label class="form-label" for="Label">Sotib olingan narx</label>
+              <ngx-select [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                [items]="devices" name="device_id" optionTextField="incoming_price" optionValueField="id"
+                placeholder="Sotib olingan narx" mask="separator.2" [(ngModel)]="data.device_id">
+                <ng-template let-option="option">
+                  {{ option.incoming_price }}
+                </ng-template>
+              </ngx-select>
+            </div>
+
+            <div class="col-sm-3 mb-3" *ngIf="accessory && bolibtolashAccess || accessory && naxtAccess">
+              <label class="form-label" for="Label">Sotib olingan narx</label>
+              <ngx-select [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                [items]="AccessuarMassiv" name="device_id" optionTextField="incoming_price" optionValueField="id"
+                placeholder="Sotib olingan narx" mask="separator.2" [(ngModel)]="data.device_id">
+                <ng-template let-option="option">
+                  {{ option.incoming_price }}
+                </ng-template>
+              </ngx-select>
+            </div>
+
+            <div class="col-sm-6 mb-3" *ngIf="qurilma && bolibtolashQurilma">
+              <label class="form-label required">Qurilma qutisi</label>
+              <select class="form-control" name="box" [(ngModel)]="data.order.box">
+                <option value="0">Berilmadi</option>
+                <option value="1">Berildi</option>
+              </select>
+            </div>
+
+            <div class="col-sm-3 mb-3" *ngIf="accessory && bolibtolashAccess || accessory && naxtAccess">
+              <label class="form-label required">Accessuar soni</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="number" name="quantity" [(ngModel)]="data.quantity" required>
+            </div>
+
+
+            <div class="col-sm-4 mb-3" *ngIf="qurilma && bolibtolashQurilma || accessory && bolibtolashAccess">
+              <label class="form-label required">To'lov muddati (Oy)</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="number" name="pay_type" [(ngModel)]="data.order.pay_type" required>
+            </div>
+
+            <div class="col-sm-4 mb-3" *ngIf="qurilma && bolibtolashQurilma || accessory && bolibtolashAccess">
+              <label class="form-label required">To'lov sanasi (Kun)</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="number" min="1" max="31" maxlength="2" name="pay_day"
+                [(ngModel)]="data.order.pay_day" required>
+              <span class="text-danger font-11">1dan 31gacha son kiritish mumkin</span>
+            </div>
+
+            <div class="col-sm-4 mb-3" *ngIf="qurilma && bolibtolashQurilma || accessory && bolibtolashAccess">
+              <label class="form-label required">Buyutma sanasi</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="date" name="startDate" [(ngModel)]="data.order.startDate" required>
+            </div>
+
+            <div class="col-sm-4 mb-3" *ngIf="qurilma && bolibtolashQurilma || accessory && bolibtolashAccess">
+              <label class="form-label">Boshlang'ich to'lov</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="text" mask="separator.2" name="initial_payment"
+                [(ngModel)]="data.order.initial_payment">
+            </div>
+
+            <div class="col-sm-4 mb-3" *ngIf="qurilma && bolibtolashQurilma || accessory && bolibtolashAccess">
+              <label class="form-label required">Tannarxi</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="text" mask="separator.2" name="body_price"
+                [(ngModel)]="data.order.body_price" required>
+            </div>
+
+            <div class="col-sm-3 mb-3"
+              *ngIf="qurilma && naxtQurilma || qurilma && bolibtolashQurilma || accessory && bolibtolashAccess || accessory && naxtAccess">
+              <label class="form-label required">Sotilayotgan tannarx</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="text" mask="separator.2" name="summa" [(ngModel)]="data.order.summa"
+                required>
+            </div>
+
+            <div class="col-sm-4 mb-3" *ngIf="!typeDevicAccess">
+              <label class="form-label">Izoh</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="text" name="notes" [(ngModel)]="data.order.notes">
+            </div>
+
+          </div>
+        </div>
+
+        <div class="mb-3" *ngIf="!typeDevicAccess">
+          <button (click)="patchData()" class="btn btn-primary" [disabled]="!dataForm.valid || loading"> Saqlash <img
+              *ngIf="loading" src="/assets/images/spinner.svg" class="spinner-load"></button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <form #dataForm="ngForm" *ngIf="typeDevicAccess == 'accessory'">
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="card">
+          <div class="card-body row">
+            <div class="form-group mb-3">
+              <label class="form-label">Mijoz</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                type="text" class="form-control col" name="name" [(ngModel)]="data.client"
+                [resultFormatter]="formatMatches" [inputFormatter]="formatMatches" [ngbTypeahead]="searchClient" />
+            </div>
+
+            <!-- <div class="col-sm-6 mb-3">
+              <label class="form-label" for="Label">Accessuar</label>
+              <ngx-select [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                 ame="model" optionTextField="model" optionValueField="id"
+                placeholder="Accessuarni tanlang" mask="separator.2" [(ngModel)]="data.device.model">
+                <ng-template let-option="option">
+                  {{ option.model }}
+                </ng-template>
+              </ngx-select>
+            </div> -->
+
+            <div class="col-sm-6 mb-3">
+              <label class="form-label required">Accessuar</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="text" name="model" [(ngModel)]="data.device.model" required>
+            </div>
+
+            <!-- <div class="col-sm-3 mb-3">
+              <label class="form-label" for="Label">Sotib olingan narx</label>
+              <ngx-select [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                name="incoming_price" optionTextField="incoming_price" optionValueField="id"
+                placeholder="Sotib olingan narx" mask="separator.2" [(ngModel)]="data.device.incoming_price">
+                <ng-template let-option="option">
+                  {{ option.incoming_price }}
+                </ng-template>
+              </ngx-select>
+            </div> -->
+
+            <div class="col-sm-3 mb-3">
+              <label class="form-label required">Sotib olingan narx</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="number" name="incoming_price" [(ngModel)]="data.device.incoming_price" required>
+            </div>
+
+            <div class="col-sm-3 mb-3">
+              <label class="form-label required">Accessuar soni</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="number" name="quantity" [(ngModel)]="data.device.quantity" required>
+            </div>
+
+
+            <div class="col-sm-4 mb-3">
+              <label class="form-label required">To'lov muddati (Oy)</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="number" name="pay_type" [(ngModel)]="data.order.pay_type" required>
+            </div>
+
+            <div class="col-sm-4 mb-3">
+              <label class="form-label required">To'lov sanasi (Kun)</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="number" min="1" max="31" maxlength="2" name="pay_day"
+                [(ngModel)]="data.order.pay_day" required>
+              <span class="text-danger font-11">1dan 31gacha son kiritish mumkin</span>
+            </div>
+
+            <div class="col-sm-4 mb-3">
+              <label class="form-label required">Buyurtma sanasi</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="date" name="startDate" [(ngModel)]="data.order.startDate" required>
+            </div>
+
+            <div class="col-sm-4 mb-3">
+              <label class="form-label">Boshlang'ich to'lov</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="text" mask="separator.2" name="initial_payment"
+                [(ngModel)]="data.order.initial_payment">
+            </div>
+
+            <div class="col-sm-4 mb-3">
+              <label class="form-label required">Tannarxi</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="text" mask="separator.2" name="body_price"
+                [(ngModel)]="data.order.body_price" required>
+            </div>
+
+            <div class="col-sm-3 mb-3">
+              <label class="form-label required">Sotilayotgan tannarx</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="text" mask="separator.2" name="summa" [(ngModel)]="data.order.summa"
+                required>
+            </div>
+
+            <div class="col-sm-4 mb-3">
+              <label class="form-label">Izoh</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="text" name="notes" [(ngModel)]="data.order.notes">
+            </div>
+
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <button (click)="patchData()" class="btn btn-primary" [disabled]="!dataForm.valid || loading"> Saqlash <img
+              *ngIf="loading" src="/assets/images/spinner.svg" class="spinner-load"></button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <form #dataForm="ngForm" *ngIf="typeDevicAccess == 'device'">
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="card">
+          <div class="card-body row">
+            <div class="form-group mb-3">
+              <label class="form-label">Mijoz</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                type="text" class="form-control col" name="name" [(ngModel)]="data.client"
+                [resultFormatter]="formatMatches" [inputFormatter]="formatMatches" [ngbTypeahead]="searchClient" />
+            </div>
+
+            <div class="mb-3">
+              <div class="mb-3">
+                <label class="form-label">Akkount (Gmail)</label>
+                <input class="form-control" type="email" name="account" [(ngModel)]="data.device.account" email>
+              </div>
+            </div>
+
+            <!-- <div class="col-sm-12 mb-3">
+              <label class="form-label" for="Label">Qurilma</label>
+              <ngx-select [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                [items]="devicesFilter" name="device_id" optionTextField="displayText" optionValueField="id"
+                placeholder="Qurilmani tanlang" mask="separator.2" [(ngModel)]="data.device_id">
+                <ng-template let-option="option">
+                  {{ option.model }}
+                </ng-template>
+              </ngx-select>
+            </div> -->
+
+            <div class="col-sm-12 mb-3">
+              <label class="form-label required">Qurilma</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="text" name="model" [(ngModel)]="data.device.model" required>
+            </div>
+
+            <!-- <div class="col-sm-6 mb-3">
+              <label class="form-label" for="Label">Sotib olingan narx</label>
+              <ngx-select [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                [items]="devices" name="device_id" optionTextField="incoming_price" optionValueField="id"
+                placeholder="Sotib olingan narx" mask="separator.2" [(ngModel)]="data.device_id">
+                <ng-template let-option="option">
+                  {{ option.incoming_price }}
+                </ng-template>
+              </ngx-select>
+            </div> -->
+
+            <div class="col-sm-6 mb-3">
+              <label class="form-label required">Sotib olingan narx</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="number" name="incoming_price" [(ngModel)]="data.device.incoming_price" required>
+            </div>
+
+            <div class="col-sm-6 mb-3">
+              <label class="form-label required">Qurilma qutisi</label>
+              <select class="form-control" name="box" [(ngModel)]="data.order.box">
+                <option value="0">Berilmadi</option>
+                <option value="1">Berildi</option>
+              </select>
+            </div>
+
+            <div class="col-sm-4 mb-3">
+              <label class="form-label required">To'lov muddati (Oy)</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="number" name="pay_type" [(ngModel)]="data.order.pay_type" required>
+            </div>
+
+            <div class="col-sm-4 mb-3">
+              <label class="form-label required">To'lov sanasi (Kun)</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="number" min="1" max="31" maxlength="2" name="pay_day"
+                [(ngModel)]="data.order.pay_day" required>
+              <span class="text-danger font-11">1dan 31gacha son kiritish mumkin</span>
+            </div>
+
+            <div class="col-sm-4 mb-3">
+              <label class="form-label required">Buyutma sanasi</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="date" name="startDate" [(ngModel)]="data.order.startDate" required>
+            </div>
+
+            <div class="col-sm-4 mb-3">
+              <label class="form-label">Boshlang'ich to'lov</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="text" mask="separator.2" name="initial_payment"
+                [(ngModel)]="data.order.initial_payment">
+            </div>
+
+            <div class="col-sm-4 mb-3">
+              <label class="form-label required">Tannarxi</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="text" mask="separator.2" name="body_price"
+                [(ngModel)]="data.order.body_price" required>
+            </div>
+
+            <div class="col-sm-3 mb-3">
+              <label class="form-label required">Sotilayotgan tannarx</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="text" mask="separator.2" name="summa" [(ngModel)]="data.order.summa"
+                required>
+            </div>
+
+            <div class="col-sm-4 mb-3">
+              <label class="form-label">Izoh</label>
+              <input [disabled]="data.order?.monthlies ? data.order.monthlies[0]?.payments.length !== 0 : false"
+                class="form-control" type="text" name="notes" [(ngModel)]="data.order.notes">
+            </div>
+
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <button (click)="patchData()" class="btn btn-primary" [disabled]="!dataForm.valid || loading"> Saqlash <img
+              *ngIf="loading" src="/assets/images/spinner.svg" class="spinner-load"></button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+</section>
+
+
+<div class="sweet_alert-content removed" [ngClass]="{'open':alertShowRemoved}">
+  <div class="sweet_alert-body" *ngIf="data">
+    <h2 class="sweet_alert-title">Ishonchingiz komilmi ?</h2>
+    <div class="sweet_alert-inner">
+      <h5 class="text-center text-muted">Ma'lumotni o'chirishga ishonchingiz komilmi ?</h5>
+    </div>
+    <div class="sweet_alert-buttons">
+      <button class="btn btn-outline-secondary btn-r" type="button" [disabled]="loading"
+        (click)="closeAlerPopup()">Bekor qilish </button>
+      <button type="button" class="btn btn-danger" [disabled]="loading" (click)="deleteData()"> O'chirish <img
+          *ngIf="loading" src="/assets/images/spinner.svg" class="spinner-load"></button>
+    </div>
+  </div>
+</div>
+
+<section class="row" *ngIf="!permissions.can('post_createOrder', 'OrderController')">
+  <div class="col-lg-5 mx-auto">
+    <div class="card mt-5">
+      <div class="card-body">
+        <div class="ex-page-content text-center">
+          <h1 class="mt-5 mb-4">403!</h1>
+          <h5 class="font-16 text-muted mb-5">Bu sahifaga kirishga huquqingiz yo'q</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

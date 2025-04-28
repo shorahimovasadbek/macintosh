@@ -1,0 +1,78 @@
+<!-- LOGO -->
+<div class="menu-content">
+  <ul class="metismenu left-sidenav-menu">
+    <li class="menu-label mt-0">Menyu</li>
+    <li *ngIf="permissions.can('index', 'DashboardController')"><a routerLink="/dashboard" routerLinkActive="active">
+        <i class="align-self-center menu-icon ti-stats-up"></i>
+        <span>Dashboard</span>
+        <span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+    </li>
+    <li *ngIf="permissions.can('index', 'ClientController')"><a routerLink="/clients" routerLinkActive="active">
+        <i class="align-self-center menu-icon ti-id-badge"></i>
+        <span>Mijozlar</span>
+        <span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+    </li>
+    <li *ngIf="permissions.can('index', 'DeviceController')"><a routerLink="/devices" routerLinkActive="active">
+        <i class="align-self-center menu-icon ti-mobile"></i>
+        <span>Qurilmalar</span>
+        <span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+    </li>
+    <li *ngIf="permissions.can('index', 'OrderController')"><a routerLink="/orders" routerLinkActive="active">
+        <i class="align-self-center menu-icon ti-shopping-cart"></i>
+        <span>Buyurtmalar</span>
+        <span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+    </li>
+    <li *ngIf="permissions.can('index', 'AdminController')"><a routerLink="/employee" routerLinkActive="active">
+        <i class="align-self-center menu-icon ti-user"></i>
+        <span>Xodimlar</span>
+        <span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+    </li>
+    <li *ngIf="permissions.can('index', 'CostController')"><a routerLink="/cost" routerLinkActive="active">
+        <i class="align-self-center menu-icon ti-agenda"></i>
+        <span>Xarajatlar</span>
+        <span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+    </li>
+    <li *ngIf="permissions.can('index', 'InvestmentController')" ngbDropdown #invest="ngbDropdown">
+      <a role="button" ngbDropdownToggle> <i
+          class="align-self-center menu-icon ti-credit-card"></i><span>Investitsiya</span><span class="menu-arrow"><i
+            class="mdi mdi-chevron-right"></i></span></a>
+      <ul class="nav-second-level" ngbDropdownMenu #dashSubmenu
+        [style.height.px]="invest.isOpen() ? dashSubmenu.scrollHeight : 0">
+        <li class="nav-item">
+          <a routerLink="/investors" class="nav-link"><i class="ti-control-record"></i>Investorlar</a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/investments" class="nav-link"><i class="ti-control-record"></i>Investitsiya</a>
+        </li>
+      </ul>
+    </li>
+    <li *ngIf="permissions.can('index', 'DashboardController')"><a routerLink="/daily" routerLinkActive="active">
+        <i class="align-self-center menu-icon ti-clipboard"></i>
+        <span>Kunlik hisob</span>
+        <span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span></a>
+    </li>
+    <li *ngIf="permissions.can('index', 'AdminController')" ngbDropdown #settings="ngbDropdown">
+      <a role="button" ngbDropdownToggle> <i
+          class="align-self-center menu-icon ti-settings"></i><span>Sozlamalar</span><span class="menu-arrow"><i
+            class="mdi mdi-chevron-right"></i></span></a>
+      <ul class="nav-second-level" ngbDropdownMenu #dashSubmenu
+        [style.height.px]="settings.isOpen() ? dashSubmenu.scrollHeight : 0">
+        <li class="nav-item">
+          <a routerLink="/role" class="nav-link"><i class="ti-control-record"></i>Role</a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/controllers" class="nav-link"><i class="ti-control-record"></i>Controllers</a>
+        </li>
+        <li class="nav-item">
+          <a routerLink="/action" class="nav-link"><i class="ti-control-record"></i>Actions</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+<!-- <div class="position-absolute start-0 ms-2" style="bottom: 60px">
+  <small>v: 0.0.33</small>
+</div> -->
+
+<ngx-spinner bdColor="rgba(255,255,255,0.8)" size="medium" color="#e0154b" type="ball-scale-ripple-multiple"
+  [fullScreen]="true"></ngx-spinner>

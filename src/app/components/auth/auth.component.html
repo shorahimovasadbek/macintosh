@@ -1,0 +1,58 @@
+<div class="account-body accountbg">
+  <div class="container">
+    <div class="row vh-100 d-flex justify-content-center">
+      <div class="col-12 align-self-center">
+        <div class="row">
+          <div class="col-lg-5 mx-auto">
+
+            <div class="card">
+              <div class="card-body p-0">
+                <div class="text-center p-3">
+                  <a href="index.html" class="logo logo-admin">
+                  </a>
+                </div>
+              </div>
+              <div class="card-body p-5">
+                <form (ngSubmit)="loginAuth()" *ngIf="!confirmCode && loginData" #loginForm="ngForm"
+                  class="form-horizontal auth-form" novalidate="novalidate">
+                  <div>
+                    <label class="form-label">Telefon</label>
+                    <div class="input-group mb-3">
+                      <span class="input-group-text" style="font-size:14px;">+998</span>
+                      <input type="text" class="form-control " name="phone1" placeholder="Telefon raqamni kiriting"
+                        [(ngModel)]="loginData.phone1" maxlength="12" mask="99 999 99 99">
+                    </div>
+                  </div>
+                  <div class="form-group mb-3">
+                    <label class="form-label">Parol</label>
+                    <div class="input-group">
+                      <button type="button" class="btn btn-outline-secondary" (click)="showPassword()">
+                        <i class="fa fa-eye" aria-hidden="true" *ngIf="!show"></i>
+                        <i class="fa fa-eye-slash" aria-hidden="true" *ngIf="show"></i>
+                      </button>
+                      <input type="{{password}}" class="form-control" name="password" placeholder="Parolni kiriting"
+                        [(ngModel)]="loginData.password" required>
+                    </div>
+                  </div>
+                  <div class="form-group mb-0">
+                    <button type="submit" class="btn btn-warning w-100"
+                      [disabled]="!loginForm.form.valid || loading">Kirish <i *ngIf="!loading"
+                        class="fas fa-sign-in-alt ms-1"></i> <img *ngIf="loading" src="./assets/images/spinner.svg"
+                        class="spinner-load"></button>
+                  </div>
+                </form>
+              </div>
+              <div class="card-body bg-light-alt text-center">
+                <span class="text-muted d-none d-sm-inline-block">©2023 Barcha huquqlar himoyalangan - IBEATS CRM</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ngx-spinner bdColor="rgba(255,255,255,0.8)" size="medium" color="#e0154b" type="ball-scale-ripple-multiple"
+  [fullScreen]="true"></ngx-spinner>

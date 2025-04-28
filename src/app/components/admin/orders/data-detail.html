@@ -1,0 +1,269 @@
+<section class="container-fluid">
+  <h4 class="page-title mb-3">Buyurtma</h4>
+  <div class="d-flex justify-content-between">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink="/orders">Buyurtmalar</a></li>
+      <li class="breadcrumb-item active">Buyurtma</li>
+    </ol>
+  </div>
+
+  <div class="row" *ngIf="data.order && data.client && data.device">
+    <div class="col-lg-8 mx-auto">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between" *ngIf="data.order.status !== 2">
+            <div>
+              <a routerLink="/orders">
+                <button class="btn btn-outline-primary btn-sm"><i class="ti-arrow-left me-1"></i> Orqaga</button>
+              </a>
+            </div>
+            <div>
+              <a *ngIf="permissions.can('putUpdateOrder', 'OrderController')" [routerLink]="['/orders', data.order.id]" [queryParams]="{ type: data.order.type }"
+                class="btn btn-outline-primary btn-sm">Tahrirlash</a>
+              <button *ngIf="data.order.status == 0" (click)="showPaymentModal()"
+                class="btn btn-outline-primary btn-sm mx-1">To'lov</button>
+              <button *ngIf="data.order.status == 0" (click)="showCloseOrderModal()"
+                class="btn btn-outline-danger btn-sm ">Voz kechish</button>
+            </div>
+          </div>
+          <div id="htmlData">
+            <div class="row p-2">
+              <div class="col-4">
+                <h6 class="mb-0"><b>Buyurtma sanasi:</b> {{data.order.startDate | date : "dd.MM.YYYY"}}</h6>
+                <h6><b>Buyurtma raqami: </b> {{data.order.NumberOrder}}</h6>
+                <h6><b>To'lov muddati: </b> {{data.order.pay_type}} oy</h6>
+                <h6><b>To'lov summasi: </b> {{data.order.monthlies[0].summa | currency :'USD' | replace:',':' '}}</h6>
+                <h6><b>Izoh: </b> {{data.order.notes}}</h6>
+              </div>
+              <div class="col-4">
+                <h6 class="mb-0"><b>Qurilma:</b> {{data.device.model}}</h6>
+                <h6><b>IMEI: </b> {{data.device.imei}}</h6>
+                <h6><b>Icloud account: </b> {{data.device.account}}</h6>
+                <h6 class="mb-0"><b>Mijoz:</b> {{client.name}} {{client.surname}}</h6>
+              </div>
+              <div class="col-4">
+                <h6><b>Tannarx: </b> {{data.order.body_price | currency :'USD' | replace:',':' '}}</h6>
+                <h6 class="mb-0"><b>Kafil:</b> {{client.bail_name}}</h6>
+                <h6 class="mb-0"><b>Qurilma qutisi:</b>
+                  <span *ngIf="data.order.box == 0"> Berilmadi</span>
+                  <span *ngIf="data.order.box == 1"> Berildi</span>
+                </h6>
+                <h6 class="mb-0" *ngFor="let phone of data.phone; let i=index"><b>{{i+1}}. Telefon:</b> +998 {{phone |
+                  phoneNumber}}</h6><br>
+              </div>
+            </div>
+
+            <div class="table-responsive mt-3">
+              <h5>To'lov ma'lumotlari</h5>
+              <table class="table table-bordered table-centered">
+                <thead>
+                  <tr class="bg-light text-center">
+                    <th>#</th>
+                    <th><span>To'langan</span> <br> summa</th>
+                    <th><span>Qolgan</span> <br> summa</th>
+                    <th><span>To'langan</span> <br> sana</th>
+                    <th><span>To'lov</span> <br> sanasi</th>
+                    <th><span>Kechiktirlgan</span> to'lov sanasi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="text-center" *ngFor="let item of data.order.monthlies; let i = index">
+                    <td [width]="10" class="first_td_child">{{i +1}}</td>
+                    <td [width]="80">
+                      <span *ngFor="let i of item.payments">
+                        <div *ngIf="i.amount" style="color: blue; cursor:pointer" (dblclick)="showDeletePayment(i)">
+                          {{i.amount | currency : 'USD' | replace:',':' '}}</div>
+                      </span>
+                    </td>
+
+                    <td [width]="80"
+                      [ngClass]="{'text-decoration-line-through text-danger': data.order.status === 2 && item.status == 0}">
+                      <span *ngIf="item.status == 0">{{item.rest_summa | currency :'USD' | replace:',':' '}}</span>
+                      <span *ngIf="item.status == 1">{{'0' | currency :'USD' | replace:',':' '}}</span>
+                    </td>
+                    <td [width]="80">
+                      <span *ngFor="let i of item.payments">
+                        {{ i.date ? (i.date | date : 'dd-MM-YYYY') : formatDateWithoutTime(i.created_at) }} <br>
+                      </span>
+                      <!-- <span *ngFor="let i of item.payments">
+                        {{ i.date ? (i.date | date : 'dd-MM-YYYY') : (i.created_at | date : 'dd-MM-YYYY') }} <br>
+                      </span> -->
+                    </td>
+
+                    <td [width]="80">{{item.month}}-{{data.order.pay_day}}</td>
+                    <td>{{item.comment}}</td>
+                  </tr>
+
+                  <tr class="bg-light">
+                    <td colspan="7" style="background-color:transparent; border:none">
+                      <span *ngIf="data.order.discount !== 0"><b class="font-14">Chegirma:
+                        </b>{{data.order.discount | currency :'USD' | replace:',':' '}}
+                      </span>
+                    </td>
+                  </tr>
+
+                  <tr class="bg-light">
+                    <td colspan="7" style="background-color:transparent; border:none">
+                      <span *ngIf="data.order.initial_payment !== 0 || data.order.initial_payment == 0">
+                        <b class=" font-14">Boshlang'ich to'lov:
+                        </b>{{data.order.initial_payment | currency :'USD' | replace:',':' '}}
+                      </span>
+                    </td>
+                  </tr>
+
+                  <tr class="bg-light">
+                    <td colspan="7" style="background-color:transparent; border:none;">
+                      <span *ngIf="data.order.discount !== 0"><b class="font-14">Jami to'langan summa: </b>{{allPayments
+                        +
+                        this.data.order.initial_payment |
+                        currency :'USD' | replace :',':' '}}</span>
+                    </td>
+                  </tr>
+
+                  <tr class="bg-light">
+                    <td colspan="7" style="background-color:transparent;border:none"><b class="font-14">Qolgan
+                        summa:</b>
+                      <span *ngIf="data.order.discount !== 0"> 0</span>
+                      <span *ngIf="data.order.discount == 0"> {{rest_sum | currency :'USD' | replace:',':' '}}</span>
+                    </td>
+                  </tr>
+
+                  <tr class="bg-light">
+                    <td colspan="7" style="background-color:transparent;border:none"><b class="font-14">Jami summa:
+                      </b>{{total_sum |
+                      currency :'USD' | replace:',':' '}}
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="d-flex justify-content-end">
+            <button class="btn btn-outline-primary" (click)="downloadPDF()">Yuklash PDF</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="data.order && data.order.is_cash">
+    <div class="col-lg-8 mx-auto">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between" *ngIf="data.order.status !== 2">
+            <div>
+              <a routerLink="/orders">
+                <button class="btn btn-outline-primary btn-sm"><i class="ti-arrow-left me-1"></i> Orqaga</button>
+              </a>
+            </div>
+          </div>
+          <div id="htmlData">
+            <div class="row p-2">
+              <div class="col-4">
+                <h6 class="mb-0"><b>Buyurtma sanasi:</b> {{data.order.startDate | date : "dd.MM.YYYY"}}</h6>
+                <h6><b>Buyurtma raqami: </b> {{data.order.NumberOrder}}</h6>
+                <h6 class="mb-0"><b>Qurilma qutisi:</b>
+                  <span *ngIf="data.order.box == 1"> Berildi</span>
+                </h6>
+              </div>
+              <div class="col-4">
+                <h6 class="mb-0"><b>Qurilma:</b> {{data.order.device.model}}</h6>
+                <h6 class="mb-0"><b>Soni:</b> {{data.order.quantity}} ta</h6>
+                <h6><b>IMEI: </b> {{data.order.device.imei}}</h6>
+              </div>
+              <div class="col-4">
+                <h6><b>Tannarx: </b> {{data.order.body_price | currency :'USD' | replace:',':' '}}</h6>
+                <h6><b>Sotilgan narx:</b> ${{data.order.summa}}</h6>
+                <h6><b>Umumiy summa:</b> ${{data.order.summa * data.order.quantity}}</h6>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-end">
+            <button class="btn btn-outline-primary" (click)="downloadPDF()">Yuklash PDF</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sweet_alert-content overflow-auto" [ngClass]="{'open':alertShowPayment}" *ngIf="!loading">
+  <form class="sweet_alert-body" #dataForm="ngForm">
+    <h2 class="sweet_alert-title">To'lov</h2>
+    <div class="sweet_alert-inner">
+
+      <div class="form-group mb-3">
+        <label class="form-label">To'lov turi</label>
+        <select class="form-control" name="payment_type" (change)="changeType($event)">
+          <option value="monthly">Oylik to'lov</option>
+          <!-- <option value="discount">Muddatdan avval to'lash</option> -->
+          <option selected disabled hidden>To'lov turini tanlang</option>
+        </select>
+      </div>
+
+      <div class="form-group mb-3" *ngIf="paymentType == 'monthly'">
+        <label class="form-label">To'lov summasi</label>
+        <input type="text" class="form-control" name="amount" mask="separator.2" [(ngModel)]="paymentSum" required />
+      </div>
+
+      <div class="form-group mb-3" *ngIf="paymentType == 'discount'">
+        <label class="form-label">To'lov summasi</label>
+        <input type="text" class="form-control" name="discount" mask="separator.2" [(ngModel)]="paymentSum" required>
+      </div>
+
+      <div class="form-group mb-3" *ngIf="paymentType == 'discount' || paymentType == 'monthly'">
+        <label class="form-label">To'lov sanasi</label>
+        <input type="date" class="form-control" name="date" [(ngModel)]="date" required>
+      </div>
+
+    </div>
+    <div class="sweet_alert-buttons">
+      <button class="btn btn-outline-secondary" type="button" [disabled]="loading"
+        (click)="closeAlerPopup()">Yopish</button>
+      <button (click)="payment()" class="btn btn-outline-primary ms-3" type="button"
+        [disabled]="!dataForm.valid || loading || !paymentType">To'lov</button>
+    </div>
+  </form>
+</div>
+
+<div class="sweet_alert-content overflow-auto" [ngClass]="{'open':alertShowCloseOrder}" *ngIf="!loading">
+  <form class="sweet_alert-body" #dataForm="ngForm">
+    <h2 class="sweet_alert-title">Buyurtmani yopish</h2>
+    <div class="sweet_alert-inner">
+      <div class="col-sm-12">
+        <label class="form-label required">Sabab</label>
+        <input type="text" class="form-control" name="name" [(ngModel)]="data.name" required>
+      </div>
+    </div>
+    <div class="sweet_alert-buttons">
+      <button class="btn btn-outline-secondary" type="button" [disabled]="loading"
+        (click)="closeAlerPopup()">Yopish</button>
+      <button (click)="closeOrder()" class="btn btn-outline-primary ms-3" type="button"
+        [disabled]="!dataForm.valid || loading">Saqlsh</button>
+    </div>
+  </form>
+</div>
+
+<div class="sweet_alert-content removed" [ngClass]="{'open':alertShowRemoved}">
+  <div class="sweet_alert-body" *ngIf="selectedPayment">
+    <h2 class="sweet_alert-title">Ishonchingiz komilmi ?</h2>
+    <div class="sweet_alert-inner">
+      <h5 class="text-center text-muted">
+        Ma'lumotni o'chirishga ishonchingiz komilmi ?
+      </h5>
+      <div class="text-center">
+        <div><b>Summa:</b> {{selectedPayment.amount | currency}}</div>
+        <div><b>Sana: </b>{{selectedPayment.date}}</div>
+      </div>
+    </div>
+    <div class="sweet_alert-buttons">
+      <button class="btn btn-outline-secondary btn-r" type="button" [disabled]="loading"
+        (click)="closeAlerPopup()">Bekor qilish </button>
+      <button type="button" class="btn btn-danger" [disabled]="loading" (click)="deleteData()"> O'chirish <img
+          *ngIf="loading" src="/assets/images/spinner.svg" class="spinner-load"></button>
+    </div>
+  </div>
+</div>

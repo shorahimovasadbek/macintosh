@@ -1,0 +1,134 @@
+<section class="container-fluid" *ngIf="permissions.can('show', 'ClientController')">
+  <div class="row mt-3">
+    <div class="col">
+      <h4 class="page-title mb-3">Mijozlar</h4>
+    </div>
+    <div class="col-auto align-self-center button-items mb-2">
+      <button type="button" class="btn btn-outline-info" (click)="search()"><i
+          class="ti-search me-1"></i>Izlash</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="clearForm()"><i class="ti-reload me-1"></i>
+        Qayta o'rnatish
+      </button>
+      <a routerLink="/clients/add" class="btn btn-outline-primary"><i class="ti-plus me-1"></i>Qo'shish</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered table-centered">
+          <thead>
+            <tr>
+              <th>N#</th>
+              <th>Status</th>
+              <th>F.I.O</th>
+              <th>Pasport</th>
+              <th>Yashash joyi</th>
+              <th>Kontaktlar</th>
+              <th>Tilxat</th>
+              <th>Passport</th>
+              <th>Passport holati</th>
+              <th [width]="80">Harakatlar</th>
+            </tr>
+          </thead>
+          <tbody *ngIf="dataItems && dataItems.length > 0">
+            <tr *ngFor="let item of paginateData;let i=index">
+              <td>{{i+1}}</td>
+              <td>
+                <span class="badge bg-success" *ngIf="item.status == 4">A'lo</span>
+                <span class="badge bg-info" *ngIf="item.status == 3">Yaxshi</span>
+                <span class="badge bg-warning" *ngIf="item.status == 2">Yomon</span>
+                <span class="badge bg-danger" *ngIf="item.status == 1">Rasvo</span>
+              </td>
+              <td>{{item.name}} {{item.middle_name}}</td>
+              <td>{{item.passport}}</td>
+              <td>{{item.place_of_residence}}</td>
+              <td [width]="150">
+                <span *ngIf="item.phone && item.phone[0] !== null">
+                  <span *ngFor="let phone of item?.phone">+998 {{phone | phoneNumber}} <br></span>
+                </span>
+                <span *ngIf="item.email">{{item.email}}</span>
+              </td>
+              <td>
+                <a *ngIf="item.file !== 'undefined'" target="_blank" href="{{item.file_url}}">{{item.file}}</a>
+              </td>
+              <td>
+                <a *ngIf="item.file_passport !== 'undefined'" target="_blank"
+                  href="{{item.file_passport_url}}">{{item.file_passport}}</a>
+              </td>
+              <td class="text-center">{{item.passport_status}}</td>
+              <td>
+                <div class="dropdown d-inline-block" ngbDropdown container="body" *ngIf="permissions.can('updateClient', 'ClientController')">
+                  <a class="dropdown-toggle arrow-none" role="button" ngbDropdownToggle>
+                    <i class="las la-ellipsis-v font-20 text-muted"></i>
+                  </a>
+                  <div class="dropdown-menu-right" ngbDropdownMenu>
+                    <a class="dropdown-item" routerLink="/clients/{{item.id}}">Tahrirlash</a>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+          <tbody *ngIf="dataItems && dataItems.length == 0">
+            <tr>
+              <td colspan="8" align="center" valign="top" class="dataTables_empty">Jadvalda ma'lumotlar yo'q</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-footer">
+        <ngb-pagination *ngIf="dataItems" [collectionSize]="totalPage" [pageSize]="pageSize" [(page)]="currentPage"
+          [maxSize]="4" [rotate]="true" (pageChange)="pageChanged($event)">
+          <ng-template ngbPaginationPrevious>&laquo; Oldingisi</ng-template>
+          <ng-template ngbPaginationNext>Keyingi &raquo;</ng-template>
+        </ngb-pagination>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sweet_alert-content overflow-auto" [ngClass]="{'open':alertShowSearch}">
+  <form class="sweet_alert-body" (ngSubmit)="getDataFilter()" #dataForm="ngForm" *ngIf="filter">
+    <h2 class="sweet_alert-title">Filtr</h2>
+    <div class="sweet_alert-inner">
+
+      <div class="form-group mb-3">
+        <label class="form-label">Mijoz</label>
+        <ngx-select [items]="dataItems" name="id" optionTextField="name" [(ngModel)]="filter.id" optionValueField="id"
+          placeholder="Mijozni tanlang">
+          <ng-template ngx-select-option-selected ngx-select-option let-option let-text="text">
+            {{option.data.name}}
+          </ng-template>
+        </ngx-select>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label">Pasport seriyasi / Karta raqami</label>
+        <input type="text" class="form-control" name="passport" [(ngModel)]="filter.passport">
+      </div>
+      
+      <div class="form-group mb-3">
+        <label class="form-label">Pasport holati</label>
+        <input type="text" class="form-control" name="passport_status" [(ngModel)]="filter.passport_status">
+      </div>
+
+      <div class="input-group">
+        <span class="input-group-text" style="font-size:15px;">+998</span>
+        <ngx-select [items]="dataItems" name="id" optionTextField="phone" [(ngModel)]="filter.id" optionValueField="id"
+          placeholder="Telefon raqamni tanlang" mask="separator.2"[(ngModel)]="filter.phone" maxlength="12" mask="99 999 99 99" class="form-control">
+          <ng-template ngx-select-option-selected ngx-select-option let-option let-text="text">
+            {{option.data.phone}}
+          </ng-template>
+        </ngx-select>
+      </div>
+
+    </div>
+    <div class="sweet_alert-buttons">
+      <button class="btn btn-outline-secondary btn-r" type="button" [disabled]="loading"
+        (click)="closeAlerPopup()">Yopish</button>
+      <button type="submit" class="btn btn-primary btn-l" [disabled]="!dataForm.valid || loading">Izlash<img
+          *ngIf="loading" src="/assets/images/spinner.svg" class="spinner-load"></button>
+    </div>
+  </form>
+</div>

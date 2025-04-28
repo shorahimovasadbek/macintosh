@@ -1,0 +1,256 @@
+<section class="container-fluid">
+  <h4 class="page-title mb-3">Qurilma</h4>
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink="/devices">Qurilmalar</a></li>
+    <li class="breadcrumb-item active">Qurilma</li>
+  </ol>
+
+  <div class="col-sm-4 mb-3" *ngIf="!data.id">
+    <label class="form-label required">Nima qo'shishni tanlang</label>
+    <select class="form-control" (ngModelChange)="onChangeDevices($event)" [(ngModel)]="data1.type">
+      <option value="accessory">accessory</option>
+      <option value="device">device</option>
+    </select>
+  </div>
+
+  <form #dataForm="ngForm" *ngIf="data && qurilma">
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="card">
+          <div class="card-body">
+            <div class="mb-3" *ngIf="qurilma">
+              <label class="form-label required">Yetkazib beruvchi</label>
+              <input class="form-control" type="text" name="provider" [(ngModel)]="data.provider" required>
+            </div>
+            <div class="mb-3" *ngIf="qurilma">
+              <label class="form-label required">IMEI</label>
+              <input class="form-control" type="text" name="imei" [(ngModel)]="data.imei" required>
+            </div>
+            <div class="mb-3" *ngIf="qurilma">
+              <label class="form-label">IMEI 2</label>
+              <input class="form-control" type="text" name="imei_2" [(ngModel)]="data.imei_2">
+            </div>
+            <div class="mb-3" *ngIf="qurilma">
+              <label class="form-label required">Model</label>
+              <input class="form-control" type="text" name="model" [(ngModel)]="data.model" required>
+            </div>
+            <div class="mb-3" *ngIf="qurilma">
+              <div class="mb-3">
+                <label class="form-label required">Kiruvchi narx</label>
+                <input class="form-control" type="number" name="incoming_price" [(ngModel)]="data.incoming_price"
+                  required>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <button *ngIf="data?.id && data.status !== 1" class="btn btn-danger btn-r" type="button" [disabled]="loading"
+            (click)="removeData()">Oʻchirish</button>
+          <button *ngIf="qurilma" (click)="patchData()" class="btn btn-primary" [disabled]="!dataForm.valid || loading">
+            Saqlash <img *ngIf="loading" src="/assets/images/spinner.svg" class="spinner-load"></button>
+          <a *ngIf="data.id" routerLink="/orders/add" class="btn btn-primary mx-2"><span>Buyurtma qo'shish</span> <span
+              class="mdi mdi-chevron-double-right"></span></a>
+        </div>
+      </div>
+
+    </div>
+
+  </form>
+
+  <form #dataForm="ngForm" *ngIf="productType == 'devices'">
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="card">
+          <div class="card-body">
+            <div class="mb-3">
+              <label class="form-label required">Yetkazib beruvchi</label>
+              <input class="form-control" type="text" name="provider" [(ngModel)]="data.provider" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label required">IMEI</label>
+              <input class="form-control" type="text" name="imei" [(ngModel)]="data.imei" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">IMEI 2</label>
+              <input class="form-control" type="text" name="imei_2" [(ngModel)]="data.imei_2">
+            </div>
+            <div class="mb-3">
+              <label class="form-label required">Model</label>
+              <input class="form-control" type="text" name="model" [(ngModel)]="data.model" required>
+            </div>
+            <div class="mb-3">
+              <div class="mb-3">
+                <label class="form-label required">Kiruvchi narx</label>
+                <input class="form-control" type="number" name="incoming_price" [(ngModel)]="data.incoming_price"
+                  required>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <button *ngIf="data?.id && data.status !== 1" class="btn btn-danger btn-r" type="button" [disabled]="loading"
+            (click)="removeData()">Oʻchirish</button>
+          <button *ngIf="productType == 'devices'" (click)="patchData()" class="btn btn-primary"
+            [disabled]="!dataForm.valid || loading">
+            Saqlash <img *ngIf="loading" src="/assets/images/spinner.svg" class="spinner-load"></button>
+          <a *ngIf="data.id" routerLink="/orders/add" class="btn btn-primary mx-2"><span>Buyurtma qo'shish</span> <span
+              class="mdi mdi-chevron-double-right"></span></a>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <form #dataForm="ngForm" *ngIf="accessData && accessory">
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="card">
+          <div class="card-body">
+            <div class="mb-3" *ngIf="accessory">
+              <div class="row align-items-center">
+                <div class="col-8">
+                  <label class="form-label required">Seriya nomer</label>
+                  <input class="form-control" type="text" name="seria_number" [(ngModel)]="accessData.seria_number"
+                    required>
+                </div>
+                <div class="col-4">
+                  <button class="btn btn-primary form-control mt-4" (click)="generateId()">Generatsiya</button>
+                </div>
+              </div>
+            </div>
+            <div class="mb-3" *ngIf="accessory">
+              <label class="form-label required">Yetkazib beruvchi</label>
+              <input class="form-control" type="text" name="provider" [(ngModel)]="accessData.provider" required>
+            </div>
+            <div class="mb-3" *ngIf="accessory">
+              <label class="form-label required">Model</label>
+              <input class="form-control" type="text" name="model" [(ngModel)]="accessData.model" required>
+            </div>
+            <div class="mb-3" *ngIf="accessData">
+              <div class="mb-3">
+                <label class="form-label">Akkount (Gmail)</label>
+                <input class="form-control" type="email" name="account" [(ngModel)]="accessData.account" email>
+              </div>
+            </div>
+
+            <div class="mb-3" *ngIf="accessory">
+              <div class="mb-3">
+                <label class="form-label required">Nechta kiritasiz?</label>
+                <input class="form-control" type="number" name="quantity" [(ngModel)]="accessData.quantity" required>
+              </div>
+            </div>
+
+
+            <div class="mb-3" *ngIf="accessory">
+              <div class="mb-3">
+                <label class="form-label required">Kiruvchi narx</label>
+                <input class="form-control" type="number" name="incoming_price" [(ngModel)]="accessData.incoming_price"
+                  required>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <button *ngIf="accessData?.id && accessData.status !== 1" class="btn btn-danger btn-r" type="button"
+            [disabled]="loading" (click)="removeDataAccess()">Oʻchirish</button>
+          <button *ngIf="accessory" (click)="patchDataAccess()" class="btn btn-primary"
+            [disabled]="!dataForm.valid || loading"> Saqlash <img *ngIf="loading" src="/assets/images/spinner.svg"
+              class="spinner-load"></button>
+          <a *ngIf="accessData.id" routerLink="/orders/add" class="btn btn-primary mx-2"><span>Buyurtma qo'shish</span>
+            <span class="mdi mdi-chevron-double-right"></span></a>
+        </div>
+      </div>
+
+    </div>
+
+  </form>
+
+  <form #dataForm="ngForm" *ngIf="productType == 'accessory'">
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="card">
+          <div class="card-body">
+            <div class="mb-3">
+              <div class="row align-items-center">
+                <div class="col-8">
+                  <label class="form-label required">Seriya nomer</label>
+                  <input class="form-control" type="text" name="seria_number" [(ngModel)]="accessData.seria_number"
+                    required>
+                </div>
+                <div class="col-4">
+                  <button class="btn btn-primary form-control mt-4" (click)="generateId()">Generatsiya</button>
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label required">Yetkazib beruvchi</label>
+              <input class="form-control" type="text" name="provider" [(ngModel)]="accessData.provider" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label required">Model</label>
+              <input class="form-control" type="text" name="model" [(ngModel)]="accessData.model" required>
+            </div>
+            <div class="mb-3" *ngIf="accessData">
+              <div class="mb-3">
+                <label class="form-label">Akkount (Gmail)</label>
+                <input class="form-control" type="email" name="account" [(ngModel)]="accessData.account" email>
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="mb-3">
+                <label class="form-label required">Nechta kiritasiz?</label>
+                <input class="form-control" type="number" name="quantity" [(ngModel)]="accessData.quantity" required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="mb-3">
+                <label class="form-label required">Kiruvchi narx</label>
+                <input class="form-control" type="number" name="incoming_price" [(ngModel)]="accessData.incoming_price"
+                  required>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <button *ngIf="accessData?.id && accessData.status !== 1" class="btn btn-danger btn-r" type="button"
+            [disabled]="loading" (click)="removeDataAccess()">Oʻchirish</button>
+          <button *ngIf="productType == 'accessory'" (click)="patchDataAccess()" class="btn btn-primary"
+            [disabled]="!dataForm.valid || loading"> Saqlash <img *ngIf="loading" src="/assets/images/spinner.svg"
+              class="spinner-load"></button>
+          <a *ngIf="accessData.id" routerLink="/orders/add" class="btn btn-primary mx-2"><span>Buyurtma qo'shish</span>
+            <span class="mdi mdi-chevron-double-right"></span></a>
+        </div>
+      </div>
+    </div>
+  </form>
+</section>
+
+
+<div class="sweet_alert-content removed" [ngClass]="{'open':alertShowRemoved1}">
+  <div class="sweet_alert-body" *ngIf="data">
+    <h2 class="sweet_alert-title">Ishonchingiz komilmi ?</h2>
+    <div class="sweet_alert-inner">
+      <h5 class="text-center text-muted">Foydalanuvchini o'chirishga ishonchingiz komilmi ?</h5>
+    </div>
+    <div class="sweet_alert-buttons">
+      <button class="btn btn-outline-secondary btn-r" type="button" [disabled]="loading"
+        (click)="closeAlerPopup()">Bekor qilish </button>
+      <button type="button" class="btn btn-danger" [disabled]="loading" (click)="deleteData()"> O'chirish <img
+          *ngIf="loading" src="/assets/images/spinner.svg" class="spinner-load"></button>
+    </div>
+  </div>
+</div>
+
+<div class="sweet_alert-content removed" [ngClass]="{'open':alertShowRemoved2}">
+  <div class="sweet_alert-body" *ngIf="accessData">
+    <h2 class="sweet_alert-title">Ishonchingiz komilmi ?</h2>
+    <div class="sweet_alert-inner">
+      <h5 class="text-center text-muted">Foydalanuvchini o'chirishga ishonchingiz komilmi ?</h5>
+    </div>
+    <div class="sweet_alert-buttons">
+      <button class="btn btn-outline-secondary btn-r" type="button" [disabled]="loading"
+        (click)="closeAlerPopupAccess()">Bekor qilish </button>
+      <button type="button" class="btn btn-danger" [disabled]="loading" (click)="deleteDataAccess()"> O'chirish <img
+          *ngIf="loading" src="/assets/images/spinner.svg" class="spinner-load"></button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,162 @@
+<section class="container-fluid" *ngIf="permissions.can('getBalance', 'DashboardController')">
+  <div class="row mt-3">
+    <div class="col">
+      <h4 class="page-title mb-3">Dashboard</h4>
+    </div>
+    <div *ngIf="permissions.can('getBalance', 'DashboardController')" class="col-auto align-self-center mb-2">
+      <h5>Balans : {{balance.summa | currency :'USD' | replace:',':' '}}</h5>
+    </div>
+  </div>
+
+  <form #dataForm="ngForm">
+    <div class="row">
+      <div class="col d-flex flex-wrap">
+        <div class="form-group me-2">
+          <select class="form-control" name="report_type" [(ngModel)]="filter.report_type">
+            <option value="period">Sanani tanlash</option>
+            <option value="all">Umumiy</option>
+            <option value="year">Yillik</option>
+            <option value="month">Oylik</option>
+            <option [value]="filter.report_type" selected disabled hidden>Hisobot turi tanlang</option>
+          </select>
+        </div>
+
+        <div class="form-group me-2" *ngIf="filter.report_type === 'year' || filter.report_type === 'month'">
+          <select class="form-control" name="year" [(ngModel)]="filter.year" required>
+            <option value="2023">2023</option>
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+            <option value="2028">2028</option>
+            <option [value]="filter.year" selected disabled hidden>Yilni kiriting</option>
+          </select>
+        </div>
+
+        <div class="form-group me-2" *ngIf="filter.report_type === 'month'">
+          <select class="form-control" name="month" [(ngModel)]="filter.month" required>
+            <option value="1">Yanvar</option>
+            <option value="2">Fevral</option>
+            <option value="3">Mart</option>
+            <option value="4">Aprel</option>
+            <option value="5">May</option>
+            <option value="6">Iyun</option>
+            <option value="7">Iyul</option>
+            <option value="8">Avgust</option>
+            <option value="9">Sentabr</option>
+            <option value="10">Oktabr</option>
+            <option value="11">Noyabr</option>
+            <option value="12">Dekabr</option>
+            <option [value]="filter.month" selected disabled hidden>Oyni kiriting</option>
+          </select>
+        </div>
+
+        <div class="form-group me-2" *ngIf="filter.report_type === 'period'">
+          <input type="date" class="form-control" name="from" [(ngModel)]="filter.from" required>
+        </div>
+
+        <div class="form-group me-2" *ngIf="filter.report_type === 'period'">
+          <input type="date" class="form-control" name="to" [(ngModel)]="filter.to" required>
+        </div>
+
+        <div class="form-group">
+          <button type="submit" (click)="getData()" class="btn btn-primary"
+            [disabled]="!dataForm.valid || loading">Ko'rish<img *ngIf="loading" src="/assets/images/spinner.svg"
+              class="spinner-load"></button>
+        </div>
+
+      </div>
+    </div>
+  </form>
+
+  <div class="row">
+
+    <div class="col-sm-3" *ngIf="dataItems">
+      <div class="card">
+        <div class="d-flex justify-content-center align-items-center h-100 p-5" *ngIf="loading">
+          <img src="/assets/images/spinner.svg" style="filter:contrast(0.5);" width="100">
+        </div>
+
+        <div class="card-body" *ngIf="!loading">
+          <h5 class="m-0">Qurilmalar statistikasi</h5>
+          <hr>
+          <strong>Amaliyotlar soni: {{dataItems.devices | number | replace:',':' '}}</strong><br>
+          <strong>Qurilmalar summasi: {{dataItems.summa | currency :'USD' | replace:',':' '}}</strong><br>
+          <strong>To'lab bo'lingan summa: {{dataItems.pay_summa | currency :'USD' | replace:',':' '}}</strong><br>
+          <strong>Tannarx: {{dataItems.body_price | currency :'USD' | replace:',':' '}}</strong><br>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-5" *ngIf="expense">
+      <div class="card">
+        <div class="d-flex justify-content-center align-items-center h-100 p-5" *ngIf="loading">
+          <img src="/assets/images/spinner.svg" style="filter:contrast(0.5);" width="100">
+        </div>
+
+        <div class="card-body" *ngIf="!loading">
+          <h5 class="m-0">Kirim-chiqim statistikasi</h5>
+          <hr>
+          <div class="d-flex justify-content-between">
+            <div>
+              <strong>Investitsiya: {{expense.investment | currency :'USD' | replace:',':' '}}</strong><br>
+              <strong>Kirim: {{expense.money_received | currency :'USD' | replace:',':' '}}</strong><br>
+              <strong>Abarot xolati: {{expense.benefit | currency :'USD' | replace:',':' '}}</strong><br><br>
+              <strong>To'lanadigan summa : {{dataItems.rest_summa | currency :'USD' | replace:',':' '}}</strong><br>
+              <strong>Sof foyda: {{dataItems.benefit | currency :'USD' | replace:',':' '}}</strong><br>
+            </div>
+            <div>
+              <strong>Umumiy rasxod: {{expense.expense.summa | currency :'USD' | replace:',':' '}}</strong><br>
+              <strong>Voz kechilgan: {{expense.expense.VozKechilgan | currency :'USD' | replace:',':' '}}</strong> <br>
+              <strong>Boshqa: {{expense.expense.Boshqa | currency :'USD' | replace:',':' '}}</strong>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-4" *ngIf="dataItemsAcc && dataItemsDevices">
+      <div class="card">
+        <div class="d-flex justify-content-center align-items-center h-100 p-5" *ngIf="loading">
+          <img src="/assets/images/spinner.svg" style="filter:contrast(0.5);" width="100">
+        </div>
+        <div class="card-body" *ngIf="!loading">
+          <h5 class="m-0">Qurilmalar statistikasi. (Naqt) </h5>
+          <hr>
+          <div class="d-flex justify-content-between">
+            <div>
+              <h4>Accessory:</h4>
+              <strong>Foyda: {{dataItemsAcc.benefit | currency :'USD' | replace:',':' '}}</strong><br>
+              <strong>Tannarxi: {{dataItemsAcc.body_price | currency :'USD' | replace:',':' '}}</strong><br>
+              <strong>Sotilgan narx: {{dataItemsAcc.summa | currency :'USD' | replace:',':' '}}</strong><br>
+              <strong>Qurilma soni: {{dataItemsAcc.devices}}</strong><br>
+            </div>
+            <div>
+              <h4>Devices:</h4>
+              <strong>Foyda: {{dataItemsDevices.benefit | currency :'USD' | replace:',':' '}}</strong><br>
+              <strong>Tannarxi: {{dataItemsDevices.body_price | currency :'USD' | replace:',':' '}}</strong><br>
+              <strong>Sotilgan narx: {{dataItemsDevices.summa | currency :'USD' | replace:',':' '}}</strong><br>
+              <strong>Qurilma soni: {{dataItemsDevices.devices}}</strong><br>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="row" *ngIf="!permissions.can('getBalance', 'DashboardController')">
+  <div class="col-lg-5 mx-auto">
+    <div class="card mt-5">
+      <div class="card-body">
+        <div class="ex-page-content text-center">
+          <h1 class="mt-5 mb-4">403!</h1>
+          <h5 class="font-16 text-muted mb-5">Bu sahifaga kirish taqiqlangan</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

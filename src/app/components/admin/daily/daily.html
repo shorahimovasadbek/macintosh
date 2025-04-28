@@ -1,0 +1,71 @@
+<section class="container-fluid" *ngIf="permissions.can('getBalance', 'DashboardController')">
+    <div class="row mt-3">
+      <div class="col">
+        <h4 class="page-title mb-3">Kunlik hisob</h4>
+      </div>
+      <div *ngIf="permissions.can('getBalance', 'DashboardController')" class="col-auto align-self-center mb-2">
+        <!-- <h5>Balans : {{balance.summa | currency :'USD' | replace:',':' '}}</h5> -->
+      </div>
+    </div>
+  
+    <div class="row">
+      <div class="col-sm-3" *ngIf="">
+        <div class="card">
+          <div class="d-flex justify-content-center align-items-center h-100 p-5" *ngIf="loading">
+            <img src="/assets/images/spinner.svg" style="filter:contrast(0.5);" width="100">
+          </div>
+  
+          <div class="card-body" *ngIf="">
+            <h5 class="m-0">Qurilmalar statistikasi</h5>
+            <hr>
+            <!-- <strong>Amaliyotlar soni: {{dataItems.devices | number | replace:',':' '}}</strong><br>
+            <strong>Qurilmalar summasi: {{dataItems.summa | currency :'USD' | replace:',':' '}}</strong><br>
+            <strong>To'lab bo'lingan summa: {{dataItems.pay_summa | currency :'USD' | replace:',':' '}}</strong><br>
+            <strong>Tannarx: {{dataItems.body_price | currency :'USD' | replace:',':' '}}</strong><br> -->
+          </div>
+        </div>
+      </div>
+  
+      <div class="col-sm-5" *ngIf="">
+        <div class="card">
+          <div class="d-flex justify-content-center align-items-center h-100 p-5" *ngIf="loading">
+            <img src="/assets/images/spinner.svg" style="filter:contrast(0.5);" width="100">
+          </div>
+  
+          <div class="card-body" *ngIf="">
+            <h5 class="m-0">Kirim-chiqim statistikasi</h5>
+            <hr>
+            <div class="d-flex justify-content-between">
+              <!-- <div>
+                <strong>Investitsiya: {{expense.investment | currency :'USD' | replace:',':' '}}</strong><br>
+                <strong>Kirim: {{expense.money_received | currency :'USD' | replace:',':' '}}</strong><br>
+                <strong>Abarot xolati: {{expense.benefit | currency :'USD' | replace:',':' '}}</strong><br><br>
+                <strong>To'lanadigan summa : {{dataItems.rest_summa | currency :'USD' | replace:',':' '}}</strong><br>
+                <strong>Sof foyda: {{dataItems.benefit | currency :'USD' | replace:',':' '}}</strong><br>
+              </div>
+              <div>
+                <strong>Umumiy rasxod: {{expense.expense.summa | currency :'USD' | replace:',':' '}}</strong><br>
+                <strong>Voz kechilgan: {{expense.expense.VozKechilgan | currency :'USD' | replace:',':' '}}</strong> <br>
+                <strong>Boshqa: {{expense.expense.Boshqa | currency :'USD' | replace:',':' '}}</strong>
+              </div> -->
+            </div>
+  
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  
+  <section class="row" *ngIf="!permissions.can('getBalance', 'DashboardController')">
+    <div class="col-lg-5 mx-auto">
+      <div class="card mt-5">
+        <div class="card-body">
+          <div class="ex-page-content text-center">
+            <h1 class="mt-5 mb-4">403!</h1>
+            <h5 class="font-16 text-muted mb-5">Bu sahifaga kirish taqiqlangan</h5>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>

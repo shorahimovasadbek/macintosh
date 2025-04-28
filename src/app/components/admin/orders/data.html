@@ -1,0 +1,212 @@
+<section class="container-fluid" *ngIf="permissions.can('index', 'OrderController')">
+  <div class="row mt-3">
+    <div class="col">
+      <h4 class="page-title mb-3">Buyurtmalar</h4>
+    </div>
+    <div class="col-auto align-self-center button-items mb-2">
+      <button type="button" class="btn btn-outline-info" (click)="showNotification()"><i
+          class="ti-bell me-1"></i>Eslatma</button>
+
+      <button type="button" class="btn btn-outline-info" (click)="search()"><i
+          class="ti-search me-1"></i>Izlash</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="clearForm()"><i
+          class="ti-reload me-1"></i>Tiklash</button>
+      <a *ngIf="permissions.can('post_createOrder', 'OrderController')" routerLink="/orders/add"
+        class="btn btn-outline-primary"><i class="ti-plus me-1"></i>Qo'shish</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered table-centered">
+          <thead>
+            <tr>
+              <th>N#</th>
+              <th>Status</th>
+              <th>Buyurtma raqami</th>
+              <th>Mijoz</th>
+              <th>Qurilma</th>
+              <th>To'lov muddati</th>
+              <th>Umumiy summa</th>
+              <th>Qolgan summa</th>
+              <th>Oylik to'lov</th>
+              <th>Izoh</th>
+              <th>To'lov sanasi</th>
+              <th>Sana</th>
+            </tr>
+          </thead>
+          <tbody *ngIf="dataItems && dataItems.length !== 0">
+            <tr *ngFor="let item of dataItems; let i=index">
+              <td>{{i+1}}</td>
+              <td>
+                <span class="badge bg-primary" *ngIf="item.is_cash === 1">Naqt</span>
+                <span class="badge bg-warning" *ngIf="item.status === 0 && item.is_cash === 0">To'lov jarayonida</span>
+                <span class="badge bg-success" *ngIf="item.status === 1">Yopildi</span>
+                <span class="badge bg-danger" *ngIf="item.status === 2">To'lanmagan</span>
+              </td>
+              <td>
+                <button type="button" class="btn btn-link"
+                  routerLink="/orders/show-order/{{item.id}}">{{item.NumberOrder}}</button>
+              </td>
+              <td>
+                <span *ngIf="item.client_name">{{item.client_name}} {{item.surname}}</span>
+                <span *ngIf="item.name">{{item.name}} {{item.surname}}</span>
+              </td>
+              <td>{{item.model}}</td>
+              <td>{{item.pay_type}} oy</td>
+              <td>{{item.summa | currency :'USD' | replace:',':' '}}</td>
+              <td>
+                <span *ngIf="item.status === 1">0</span>
+                <span *ngIf="item.status !== 1">{{item.rest_summa | currency :'USD' | replace:',':' '}}</span>
+              </td>
+              <td>{{(item.summa - item.initial_payment) / item.pay_type | currency :'USD' | replace:',':' '}}</td>
+              <td>{{item.notes}}</td>
+              <td class="text-center fw-bold">{{item.pay_day}}</td>
+              <td>{{item.startDate | date: 'dd.MM.YYYY'}}</td>
+            </tr>
+          </tbody>
+          <tbody *ngIf="dataItems && dataItems.length == 0">
+            <tr>
+              <td colspan="8" align="center" valign="top" class="dataTables_empty">Jadvalda ma'lumotlar yo'q</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer">
+        <ngb-pagination *ngIf="dataItems" [collectionSize]="totalPage" [pageSize]="pageSize" [(page)]="currentPage"
+          [maxSize]="4" [rotate]="true" (pageChange)="pageChanged($event)">
+          <ng-template ngbPaginationPrevious>&laquo; Oldingisi</ng-template>
+          <ng-template ngbPaginationNext>Keyingi &raquo;</ng-template>
+        </ngb-pagination>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sweet_alert-content overflow-auto" [ngClass]="{'open':alertShowSearch}">
+  <form class="sweet_alert-body" (ngSubmit)="getDataFilter()" #dataForm="ngForm" *ngIf="filter">
+    <h2 class="sweet_alert-title">Filtr</h2>
+    <div class="sweet_alert-inner">
+      <div class="form-group mb-3">
+        <label class="form-label">Status</label>
+        <select class="form-control" name="status" [(ngModel)]="filter.status">
+          <option value="0">To'lov jarayonda</option>
+          <option value="1">Yopildi</option>
+          <option value="2">To'lanmagan</option>
+          <option value="3">Naqt</option>
+          <option [value]="filter.status" selected disabled hidden>Statusni tanlang</option>
+        </select>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label">Buyurtma raqami</label>
+        <input type="text" class="form-control " name="numberOrder" [(ngModel)]="filter.id">
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label">Mijoz</label>
+        <input type="text" class="form-control col" name="client" [(ngModel)]="filter.client"
+          [resultFormatter]="formatMatches" [inputFormatter]="formatMatches" [ngbTypeahead]="searchClient" />
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label">IMEI</label>
+        <ngx-select [items]="devices" name="imei" optionTextField="imei" [(ngModel)]="filter.imei"
+          optionValueField="imei" placeholder="Qurilma tanlang">
+          <ng-template ngx-select-option-selected ngx-select-option let-option let-text="text">
+            {{option.data.imei}}
+          </ng-template>
+        </ngx-select>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label">To'lov muddati</label>
+        <input type="number" class="form-control" name="pay_type" [(ngModel)]="filter.pay_type">
+      </div>
+
+    </div>
+    <div class="sweet_alert-buttons">
+      <button class="btn btn-outline-secondary btn-r" type="button" [disabled]="loading" (click)="closeAlerPopup()">
+        Yopish
+      </button>
+      <button type="submit" class="btn btn-primary btn-l" [disabled]="!dataForm.valid || loading">
+        Izlash
+        <img *ngIf="loading" src="/assets/images/spinner.svg" class="spinner-load"></button>
+    </div>
+  </form>
+</div>
+
+<div class="sweet_alert-content overflow-auto" [ngClass]="{'open':alertShowNotification}" *ngIf="!loading">
+  <form class="sweet_alert-body" (ngSubmit)="filterApply()" #dataForm="ngForm" *ngIf="filter">
+    <div class="d-flex justify-content-between">
+      <h2 class="sweet_alert-title">To'lov kuni</h2>
+    <div class="sweet_alert-buttons">
+      <button class="btn btn-outline-secondary btn-r" type="button" [disabled]="loading"
+        (click)="closeAlerPopup()">Yopish</button>
+    </div>
+    </div>
+    <div class="sweet_alert-inner px-0">
+      <div class="table-responsive">
+        <table class="table table-bordered table-centered">
+          <thead>
+            <tr>
+              <th>Buyurtma raqami</th>
+              <th>Mijoz (F.I.O)</th>
+              <th>Telefon</th>
+              <th>Qurilma</th>
+              <th>To'lov sanasi</th>
+              <th>Harakatlar</th>
+            </tr>
+          </thead>
+          <tbody *ngIf="notes">
+            <tr *ngFor="let item of resultNotes">
+              <button type="button" class="btn btn-link"
+                routerLink="/orders/{{item.id}}/detail">{{item.NumberOrder}}</button>
+              <td>{{item.name}} {{item.surname}}</td>
+              <td>
+                <span *ngFor="let phone of item.phone">
+                  +998 {{phone | phoneNumber}} <br>
+                </span>
+
+              </td>
+              <td>{{item.model}}</td>
+              <td class="text-center fw-bold">{{item.pay_day}}</td>
+              <td>
+                <button type="button" class="btn btn-primary btn-sm"
+                  (click)="showMonthlyComment(item)">Tahrirlash</button>
+              </td>
+            </tr>
+          </tbody>
+          <tbody *ngIf="!notes?.length">
+            <tr>
+              <td colspan="8" align="center" valign="top" class="dataTables_empty">Jadvalda ma'lumotlar yo'q</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="sweet_alert-buttons">
+      <button class="btn btn-outline-secondary btn-r" type="button" [disabled]="loading"
+        (click)="closeAlerPopup()">Yopish</button>
+    </div>
+  </form>
+</div>
+
+<div class="sweet_alert-content overflow-auto" [ngClass]="{'open':monthlyCommentModal}" *ngIf="!loading">
+  <form class="sweet_alert-body" #dataForm="ngForm">
+    <h2 class="sweet_alert-title">To'lov kunini o'zgartirish</h2>
+    <div class="sweet_alert-inner">
+      <div class="form-group">
+        <label class="form-label">To'lov kunini belgilash</label>
+        <input type="text" class="form-control" [(ngModel)]="monthlyComment" name="monthlyComment">
+      </div>
+    </div>
+    <div class="sweet_alert-buttons">
+      <button class="btn btn-outline-secondary" type="button" [disabled]="loading"
+        (click)="closeAlerPopup()">Yopish</button>
+      <button class="btn btn-outline-primary mx-2" type="button" [disabled]="loading"
+        (click)="setMonthlyComment()">Saqlash</button>
+    </div>
+  </form>
+</div>

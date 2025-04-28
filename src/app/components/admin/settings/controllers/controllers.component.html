@@ -1,0 +1,129 @@
+<section class="container-fluid" *ngIf="permissions.can('show', 'AdminController')">
+    <div class="row mt-3">
+        <div class="col">
+            <h4 class="page-title mb-3">Controllers</h4>
+        </div>
+        <div class="col-auto align-self-center button-items mb-2">
+            <ng-template #content let-modal>
+                <div class="modal-header">
+                    <h4 class="modal-title">Inputlarni to'ldiring.</h4>
+                    <button type="button" class="btn-close" aria-label="Close"
+                        (click)="modal.dismiss('Cross click')"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- <p>One fine body&hellip;</p> -->
+
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <label for="Label">Label</label>
+                            <input [(ngModel)]="controllerData.label" type="text" name="label" placeholder="Label"
+                                class="form-control">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label for="Label">Name</label>
+                            <input [(ngModel)]="controllerData.name" type="text" name="name" placeholder="Name"
+                                class="form-control">
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="modal.close(addController())">Add</button>
+                </div>
+            </ng-template>
+            <a class="btn btn-outline-primary" (click)="openVerticallyCentered(content)"><i
+                    class="ti-plus me-1"></i>Qo'shish</a>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-centered">
+                    <thead>
+                        <tr>
+                            <th>Label</th>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody *ngIf="data && data.length > 0">
+                        <tr *ngFor="let item of data; let i = index">
+                            <td>{{item.label}}</td>
+                            <td>{{item.name}}</td>
+                            <td>
+                                <div class="dropdown d-inline-block" ngbDropdown container="body">
+                                    <a class="dropdown-toggle arrow-none" role="button" ngbDropdownToggle>
+                                        <i class="las la-ellipsis-v font-20 text-muted"></i>
+                                    </a>
+
+                                    <ng-template #content let-modal>
+                                        <div class="modal-header">
+                                            <h4 class="modal-title">Inputlarni to'ldiring.</h4>
+                                            <button type="button" class="btn-close" aria-label="Close"
+                                                (click)="modal.dismiss('Cross click')"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <!-- <p>One fine body&hellip;</p> -->
+
+                                            <div class="row">
+                                                <div class="col-12 col-md-6">
+                                                    <label for="Label">Label</label>
+                                                    <input [(ngModel)]="controllerEditData.label" type="text"
+                                                        name="label" placeholder="Label" class="form-control">
+                                                </div>
+                                                <div class="col-12 col-md-6">
+                                                    <label for="Label">Name</label>
+                                                    <input [(ngModel)]="controllerEditData.name" type="text" name="name"
+                                                        placeholder="Name" class="form-control">
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                (click)="modal.close(editController(item.id))">Edit</button>
+                                        </div>
+                                    </ng-template>
+
+                                    <div class="dropdown-menu-right" ngbDropdownMenu>
+                                        <a class="dropdown-item a_edit__link"
+                                            (click)="openVerticallyCentered_crud(content)">Tahrirlash</a>
+                                        <a class="dropdown-item a_edit__link"
+                                            (click)="deleteController(item.id)">O'chirish</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody *ngIf="data && data.length == 0">
+                        <tr>
+                            <td colspan="8" align="center" valign="top" class="dataTables_empty">Jadvalda ma'lumotlar
+                                yo'q</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-footer">
+                <ngb-pagination *ngIf="data" [collectionSize]="totalPage" [pageSize]="fullPage" [(page)]="firstPage"
+                    [maxSize]="4" [rotate]="true" (pageChange)="pageChanged($event)">
+                    <ng-template ngbPaginationPrevious>&laquo; Oldingisi</ng-template>
+                    <ng-template ngbPaginationNext>Keyingi &raquo;</ng-template>
+                </ngb-pagination>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section class="row" *ngIf="!permissions.can('show', 'AdminController')">
+    <div class="col-lg-5 mx-auto">
+        <div class="card mt-5">
+            <div class="card-body">
+                <div class="ex-page-content text-center">
+                    <h1 class="mt-5 mb-4">403!</h1>
+                    <h5 class="font-16 text-muted mb-5">Bu sahifaga kirish taqiqlangan</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

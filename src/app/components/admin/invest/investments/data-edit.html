@@ -1,0 +1,69 @@
+<section class="container-fluid" *ngIf="is_access">
+  <h4 class="page-title mb-3">Investitsiyalar</h4>
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink="/investments">Investitsiyalar</a></li>
+    <li class="breadcrumb-item active">Investitsiya</li>
+  </ol>
+
+  <form #dataForm="ngForm" *ngIf="data">
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="card">
+          <div class="card-body">
+            <div class="row">
+
+              <div class="mb-3">
+                <label class="form-label required">Investor</label>
+                <ngx-select [items]="investors" optionTextField="name" optionValueField="id"  [(ngModel)]="data.investor_id" name="investor_id"
+                  placeholder="Investorni tanlang">
+                </ngx-select>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label required">Summa</label>
+                <input class="form-control" type="text" name="amount" mask="separator.2" [(ngModel)]="data.amount" required>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mb-3">
+      <button *ngIf="data?.id" class="btn btn-danger btn-r" type="button" [disabled]="loading"
+        (click)="removeData()">Oʻchirish</button>
+      <button type="button" (click)="patchData()" class="btn btn-primary" [disabled]="!dataForm.valid || loading">
+        Saqlash <img *ngIf="loading" src="/assets/images/spinner.svg" class="spinner-load"></button>
+    </div>
+  </form>
+</section>
+
+
+<div class="sweet_alert-content removed" [ngClass]="{'open':alertShowRemoved}">
+  <div class="sweet_alert-body" *ngIf="data">
+    <h2 class="sweet_alert-title">Ishonchingiz komilmi ?</h2>
+    <div class="sweet_alert-inner">
+      <h5 class="text-center text-muted">Ma'lumotni o'chirishga ishonchingiz komilmi ?</h5>
+    </div>
+    <div class="sweet_alert-buttons">
+      <button class="btn btn-outline-secondary btn-r" type="button" [disabled]="loading"
+        (click)="closeAlerPopup()">Bekor qilish </button>
+      <button type="button" class="btn btn-danger" [disabled]="loading" (click)="deleteData()"> O'chirish <img
+          *ngIf="loading" src="/assets/images/spinner.svg" class="spinner-load"></button>
+    </div>
+  </div>
+</div>
+
+<section class="row" *ngIf="!is_access">
+  <div class="col-lg-5 mx-auto">
+    <div class="card mt-5">
+      <div class="card-body">
+        <div class="ex-page-content text-center">
+          <h1 class="mt-5 mb-4">403!</h1>
+          <h5 class="font-16 text-muted mb-5">Bu sahifaga kirishga huquqingiz yo'q</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

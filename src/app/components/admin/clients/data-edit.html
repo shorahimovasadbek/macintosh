@@ -1,0 +1,265 @@
+<section class="container-fluid">
+  <h4 class="page-title mb-3">Mijoz</h4>
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink="/clients">Mijozlar</a></li>
+    <li class="breadcrumb-item active">Mijoz</li>
+  </ol>
+  <form #dataForm="ngForm">
+
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="card">
+          <div class="card-body">
+            <div class="row">
+
+              <div class="col-sm-12">
+                <div class="mb-3 col-sm-4">
+                  <label class="form-label ">Status</label>
+                  <select class="form-select" name="status" [(ngModel)]="data.status">
+                    <option value="4">A'lo</option>
+                    <option value="3">Yaxshi</option>
+                    <option value="2">Yomon</option>
+                    <option value="1">Rasvo</option>
+                    <option [value]="data.status" selected hidden disabled>Statusni tanlang</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mb-3 col-sm-4">
+                <label class="form-label required">Familiya</label>
+                <input class="form-control" name="surname" type="text" [(ngModel)]="data.surname" required>
+              </div>
+
+              <div class="mb-3 col-sm-4">
+                <label class="form-label required">Ismi</label>
+                <input class="form-control" name="name" type="text" [(ngModel)]="data.name" required>
+              </div>
+
+              <div class="mb-3 col-sm-4">
+                <label class="form-label">Sharifi</label>
+                <input class="form-control" name="middle_name" type="text" [(ngModel)]="data.middle_name">
+              </div>
+
+              <div class="mb-3 col-sm-6">
+                <label class="form-label">Telefon</label>
+                <div class="input-group mb-2" *ngFor="let phone of data?.phone; let i = index; let last = last; trackBy:trackByFn">
+                  <span class="input-group-text">+998</span>
+                  <input type="text" class="form-control" name="phone_{{i}}" placeholder="Telefon raqamini kiriting"
+                    [(ngModel)]="data.phone[i]" maxlength="12" mask="99 999 99 99">
+
+                  <button class="btn btn-info" type="button" *ngIf="last" (click)="addItem()"><i
+                      class="ti-plus"></i></button>
+                  <button class="btn btn-danger" *ngIf="data.phone && data.phone.length > 1" type="button" (click)="removeItem(i)"><i
+                      class="ti-trash"></i></button>
+                </div>
+              </div>
+
+              <div class="mb-3 col-sm-6">
+                <label class="form-label">Email</label>
+                <input type="text" class="form-control" name="email" [(ngModel)]="data.email">
+              </div>
+
+              <div class="mb-3 col-sm-6">
+                <label class="form-label ">Jinsi</label>
+                <select class="form-select" name="gender" [(ngModel)]="data.gender">
+                  <option value="1">Erkak</option>
+                  <option value="0">Ayol</option>
+                  <option [value]="data.gender" selected hidden disabled>Jinsni tanlang</option>
+                </select>
+              </div>
+
+              <div class="mb-3 col-sm-6">
+                <label class="form-label">Ish joyi</label>
+                <input type="text" class="form-control" name="workplace" [(ngModel)]="data.workplace">
+              </div>
+
+              <div class="mb-3 col-sm-6">
+                <label class="form-label">Kasbi</label>
+                <input type="text" class="form-control" name="specialization" [(ngModel)]="data.specialization">
+              </div>
+
+              <div class="mb-3 col-sm-4">
+                <label class="form-label ">Pasport seriyasi / Karta raqami</label>
+                <input class="form-control" name="passport" type="text" [(ngModel)]="data.passport">
+              </div>
+
+              <div class="mb-3 col-sm-2">
+                <label class="form-label ">Pasport holati</label>
+                  <select class="form-select" name="passport_status" [(ngModel)]="data.passport_status">
+                    <option value="A1">A1</option>
+                    <option value="A2">A2</option>
+                    <option value="A3">A3</option>
+                    <option value="B1">B1</option>
+                    <option value="B2">B2</option>
+                    <option value="B3">B3</option>
+                    <option value="C1">C1</option>
+                    <option value="C2">C2</option>
+                    <option value="C3">C3</option>
+                    <option value="D1">D1</option>
+                    <option value="D2">D2</option>
+                    <option value="D3">D3</option>
+                    <option value="E1">E1</option>
+                    <option value="E2">E2</option>
+                    <option value="E3">E3</option>
+                    <option [value]="data.status" selected hidden disabled>Tanlang</option>
+                  </select>
+              </div>
+
+              <div class="mb-3 col-sm-6">
+                <label class="form-label">Kim tomonidan berilgan</label>
+                <input class="form-control" name="place_of_issue" type="text" [(ngModel)]="data.place_of_issue">
+              </div>
+
+              <div class="mb-3 col-sm-6">
+                <label class="form-label">Qachon berilgan</label>
+                <input class="form-control" name="date_of_issue" type="date" [(ngModel)]="data.date_of_issue">
+              </div>
+
+              <div class="mb-3 col-sm-6">
+                <label class="form-label ">Tug'ilgan yili</label>
+                <input class="form-control" name="date_of_birth" type="date" [(ngModel)]="data.date_of_birth">
+              </div>
+
+              <div class="mb-3 col-sm-6">
+                <label class="form-label ">Tug'ilgan joyi</label>
+                <input class="form-control" name="place_of_birth" type="text" [(ngModel)]="data.place_of_birth">
+              </div>
+
+              <div class="mb-3 col-sm-6">
+                <label class="form-label">Yashash manzili</label>
+                <input class="form-control" name="place_of_residence" type="text" [(ngModel)]="data.place_of_residence">
+              </div>
+
+              <div class="mb-3 col-sm-6">
+                <label class="form-label">Ro'yhatdan o'tgan manzili</label>
+                <input class="form-control" name="place_of_registration" type="text"
+                  [(ngModel)]="data.place_of_registration">
+              </div>
+
+              <div class="mb-3 col-sm-6">
+                <label class="form-label">Kafil (F.I.O)</label>
+                <input class="form-control" name="bail_name" type="text"
+                  [(ngModel)]="data.bail_name">
+              </div>
+
+              <div class="mb-3 col-sm-6">
+                <label class="form-label">Kafil telefon</label>
+                <div class="input-group mb-2">
+                  <span class="input-group-text">+998</span>
+                  <input type="text" class="form-control" name="bail_phone" placeholder="Telefon raqamini kiriting"
+                    [(ngModel)]="data.bail_phone" maxlength="12" mask="99 999 99 99">
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">Tilxat </h4>
+          </div>
+          <div class="card-body">
+            <div class="dropify-wrapper">
+              <input type="file" accept="image/png, image/jpeg, application/pdf" name="file"
+                (change)="selectFile($event)" class="dropify">
+              <div class="dropify-preview">
+                <span class="dropify-render" *ngIf="!selectedFile && data.file !== 'undefined'">
+                  <img src="{{data.file_url}}">
+                </span>
+                <span *ngIf="selectedFile" class="dropify-render">
+                  <img [src]="previewUrl" alt="{{selectedFile.name}}">
+                </span>
+                <div class="dropify-message">
+                  <span *ngIf="data.file == 'undefined' || !data.file" class="file-icon"> <i class="dripicons-cloud-upload"></i>
+                    <p>Faylni shu yerga torting yoki bosing</p>
+                  </span>
+                </div>
+
+                <div class="dropify-infos">
+                  <div class="dropify-infos-inner">
+                    <p class="dropify-filename">
+                      <span class="file-icon"></span>
+                      <span class="dropify-filename-inner" *ngIf="!selectedFile && data.file !== 'undefined'">{{data.file}}</span>
+                      <span class="dropify-filename-inner" *ngIf="selectedFile && data.file !== 'undefined'">{{selectedFile.name}}</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="alert alert-warning mt-3">E'tibor bering, fayl hajmi 2 MB bilan cheklangan va faqat
+              quyidagi formatlar qabul qiladi: <strong>PDF, JPG, PNG</strong></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">Pasport Nusxasi / ID Karta</h4>
+          </div>
+          <div class="card-body">
+            <div class="dropify-wrapper">
+              <input type="file" accept="image/png, image/jpeg, application/pdf" name="file_passport"
+                (change)="selectPassport($event)" class="dropify">
+              <div class="dropify-preview">
+                <span class="dropify-render" *ngIf="!selectedFilePassport && data.file_passport !== 'undefined'">
+                  <img src="{{data.file_passport_url}}">
+                </span>
+                <span *ngIf="selectedFilePassport" class="dropify-render">
+                  <img [src]="previewPassportUrl" alt="{{selectedFilePassport.name}}">
+                </span>
+                <div class="dropify-message">
+                  <span *ngIf="data.file_passport == 'undefined' || !data.file_passport" class="file-icon"> <i class="dripicons-cloud-upload"></i>
+                    <p>Faylni shu yerga torting yoki bosing</p>
+                  </span>
+                </div>
+                <div class="dropify-infos">
+                  <div class="dropify-infos-inner">
+                    <p class="dropify-filename">
+                      <span class="file-icon"></span>
+                      <span class="dropify-filename-inner" *ngIf="!selectedFilePassport && data.file_passport !== 'undefined'">{{data.file_passport}}</span>
+                      <span class="dropify-filename-inner"
+                        *ngIf="selectedFilePassport && data.file_passport !== 'undefined'">{{selectedFilePassport.name}}</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="alert alert-warning mt-3">E'tibor bering, fayl hajmi 2 MB bilan cheklangan va faqat
+              quyidagi formatlar qabul qiladi: <strong>PDF, JPG, PNG</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mb-3">
+      <button *ngIf="data.id" class="btn btn-danger btn-r" type="button" [disabled]="loading"
+        (click)="removeData()">Oʻchirish</button>
+      <button (click)="patchData()" type="submit" class="btn btn-primary" [disabled]="!dataForm.valid || loading">
+        Saqlash <img *ngIf="loading" src="/assets/images/spinner.svg" class="spinner-load"></button>
+      <a *ngIf="data.id" routerLink="/devices/add" class="btn btn-primary mx-2"><span>Qurilma qo'shish</span> <span class="mdi mdi-chevron-double-right"></span></a>
+    </div>
+    
+  </form>
+</section>
+
+<div class="sweet_alert-content removed" [ngClass]="{'open':alertShowRemoved}">
+  <div class="sweet_alert-body" *ngIf="data">
+    <h2 class="sweet_alert-title">Ishonchingiz komilmi ?</h2>
+    <div class="sweet_alert-inner">
+      <h5 class="text-center text-muted">Ma'lumotni o'chirishga ishonchingiz komilmi ?</h5>
+    </div>
+    <div class="sweet_alert-buttons">
+      <button class="btn btn-outline-secondary btn-r" type="button" [disabled]="loading"
+        (click)="closeAlerPopup()">Bekor qilish </button>
+      <button type="button" class="btn btn-danger" [disabled]="loading" (click)="deleteData()"> O'chirish <img
+          *ngIf="loading" src="/assets/images/spinner.svg" class="spinner-load"></button>
+    </div>
+  </div>
+</div>
+
+<div class="loading-page" *ngIf="uploading">
+  <div>
+    <img src="/assets/images/spinner.svg"> <br> {{uploadingText}}
+  </div>
+</div>

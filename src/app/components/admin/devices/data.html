@@ -1,0 +1,257 @@
+<section class="container-fluid" *ngIf="permissions.can('show', 'DeviceController')">
+  <nav ngbNav #nav="ngbNav" class="nav-tabs">
+    <ng-container ngbNavItem>
+      <a class="page-title mb-3 mt-3" (click)="Qurilma()" ngbNavLink>Qurilmalar</a>
+      <ng-template ngbNavContent>
+        <div class="d-flex justify-content-end">
+          <div class="button-items" style="margin-top: -50px;">
+            <button *ngIf="qurilma" type="button" class="btn btn-outline-info" (click)="search()"><i
+                class="ti-search me-1"></i>Izlash</button>
+            <button *ngIf="qurilma" type="button" class="btn btn-outline-secondary" (click)="clearForm()"><i
+                class="ti-reload me-1"></i>Qayta
+              o'rnatish</button>
+            <a *ngIf="permissions.can('store', 'DeviceController')" routerLink="/devices/add"
+              class="btn btn-outline-primary"><i class="ti-plus me-1"></i>Qo'shish</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-centered">
+                <thead>
+                  <tr>
+                    <th>N#</th>
+                    <th>Yetkazib beruvchi</th>
+                    <th>Model</th>
+                    <th>IMEI</th>
+                    <th>Akkaunt (Gmail)</th>
+                    <th>Quti holati</th>
+                    <th>Sotuv turi</th>
+                    <th>Tannarxi</th>
+                    <th [width]="80">Harakatlar</th>
+                  </tr>
+                </thead>
+                <tbody *ngIf="dataItems && dataItems.length > 0">
+                  <tr *ngFor="let item of paginateData;let i=index">
+                    <td>{{i+1}}</td>
+                    <td>{{item.provider}}</td>
+                    <td>{{item.model}}</td>
+                    <td>{{item.imei}}</td>
+                    <td>{{item.account}}</td>
+                    <td>
+                      {{ item.status
+                      ? item.order.box
+                      ? "Berilgan"
+                      : "Berilmagan"
+                      : "" }}
+                    </td>
+                    <td>
+                      {{ item.status
+                      ? item.order.is_cash
+                      ? "Naqt"
+                      : "Muddatli to'lov"
+                      : "Sotuvda" }}
+                    </td>
+                    <td class="text-center">{{item.incoming_price}}$</td>
+                    <td>
+                      <div class="dropdown d-inline-block" ngbDropdown container="body"
+                        *ngIf="permissions.can('update', 'DeviceController')">
+                        <a class="dropdown-toggle arrow-none" role="button" ngbDropdownToggle>
+                          <i class="las la-ellipsis-v font-20 text-muted"></i>
+                        </a>
+                        <div class="dropdown-menu-right" ngbDropdownMenu>
+                          <a class="dropdown-item" [routerLink]="['/devices', item.id]" [queryParams]="{ type: 'devices' }">Tahrirlash</a>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+                <tbody *ngIf="dataItems && dataItems.length == 0">
+                  <tr>
+                    <td colspan="8" align="center" valign="top" class="dataTables_empty">Jadvalda ma'lumotlar yo'q</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="table-footer">
+              <ngb-pagination *ngIf="dataItems" [collectionSize]="totalPage" [pageSize]="pageSize"
+                [(page)]="currentPage" (pageChange)="pageChanged($event)">
+                <ng-template ngbPaginationPrevious>&laquo; Oldingisi</ng-template>
+                <ng-template ngbPaginationNext>Keyingi &raquo;</ng-template>
+              </ngb-pagination>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </ng-container>
+
+    <ng-container ngbNavItem>
+      <a class="page-title mb-3 mt-3" (click)="Access()" ngbNavLink>Accessuarlar</a>
+      <ng-template ngbNavContent>
+        <div class="d-flex justify-content-end">
+          <div class="button-items" style="margin-top: -50px;">
+            <button *ngIf="accesseires" type="button" class="btn btn-outline-info" (click)="searchAccess()"><i
+                class="ti-search me-1"></i>Izlash</button>
+            <button *ngIf="accesseires" type="button" class="btn btn-outline-secondary" (click)="clearFormAccess()"><i
+                class="ti-reload me-1"></i>Qayta
+              o'rnatish</button>
+            <a *ngIf="permissions.can('store', 'DeviceController')" routerLink="/devices/add"
+              class="btn btn-outline-primary"><i class="ti-plus me-1"></i>Qo'shish</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-centered">
+                <thead>
+                  <tr>
+                    <th>N#</th>
+                    <th>Yetkazib beruvchi</th>
+                    <th>Model</th>
+                    <th>Seria nomeri</th>
+                    <th>Akkaunt (Gmail)</th>
+                    <th>Soni</th>
+                    <th class="text-center">Tannarxi</th>
+                    <th [width]="80">Harakatlar</th>
+                  </tr>
+                </thead>
+                <tbody *ngIf="dataAccess && dataAccess.length > 0">
+                  <tr *ngFor="let item of paginateDataAccess;let i=index">
+                    <td>{{i+1}}</td>
+                    <td>{{item.provider}}</td>
+                    <td>{{item.model}}</td>
+                    <td>{{item.seria_number}}</td>
+                    <td>{{item.account}}</td>
+                    <td>{{item.quantity}}</td>
+                    <td class="text-center">{{item.incoming_price*item.quantity}}$</td>
+                    <td>
+                      <div class="dropdown d-inline-block" ngbDropdown container="body"
+                        *ngIf="permissions.can('update', 'DeviceController')">
+                        <a class="dropdown-toggle arrow-none" role="button" ngbDropdownToggle>
+                          <i class="las la-ellipsis-v font-20 text-muted"></i>
+                        </a>
+                        <div class="dropdown-menu-right" ngbDropdownMenu>
+                          <a class="dropdown-item" [routerLink]="['/devices', item.id]" [queryParams]="{ type: 'accessory' }">Tahrirlash</a>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+                <tbody *ngIf="dataItems && dataItems.length == 0">
+                  <tr>
+                    <td colspan="8" align="center" valign="top" class="dataTables_empty">Jadvalda ma'lumotlar yo'q</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="table-footer">
+              <ngb-pagination *ngIf="dataItems" [collectionSize]="totalPage" [pageSize]="pageSize"
+                [(page)]="currentPage" (pageChange)="pageChangedAccess($event)">
+                <ng-template ngbPaginationPrevious>&laquo; Oldingisi</ng-template>
+                <ng-template ngbPaginationNext>Keyingi &raquo;</ng-template>
+              </ngb-pagination>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </ng-container>
+  </nav>
+  <div [ngbNavOutlet]="nav" class="mb-2"></div>
+</section>
+
+
+
+
+
+
+
+
+
+
+<div class="sweet_alert-content overflow-auto" [ngClass]="{'open':alertShowSearch}">
+  <form class="sweet_alert-body" (ngSubmit)="getDataFilter()" #dataForm="ngForm" *ngIf="filter">
+    <h2 class="sweet_alert-title">Filtr</h2>
+    <div class="sweet_alert-inner">
+      <div class=" mb-3">
+        <label class="form-label required">Nima bo'yicha filter qilasiz?</label>
+        <select class="form-control" name="box3" (ngModelChange)="onChangeFilter($event)" [(ngModel)]="filter.status">
+          <option value="cash">Naqt</option>
+          <option value="credit">Nasiya</option>
+          <option value="in_stock">Sotuvda</option>
+        </select>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label">Yetkazib beruvchi</label>
+        <input type="text" class="form-control " name="provider" [(ngModel)]="filter.provider">
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label">IMEI</label>
+        <input type="text" class="form-control" name="imei" [(ngModel)]="filter.imei">
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label">Model</label>
+        <input type="text" class="form-control" name="model" [(ngModel)]="filter.model">
+      </div>
+      <div class="form-group mb-3">
+        <label class="form-label">Akkount (Gmail)</label>
+        <input type="text" class="form-control" name="account" [(ngModel)]="filter.account">
+      </div>
+    </div>
+    <div class="sweet_alert-buttons">
+      <button class="btn btn-outline-secondary btn-r" type="button" [disabled]="loading"
+        (click)="closeAlerPopup()">Yopish</button>
+      <button type="submit" class="btn btn-primary btn-l" [disabled]="!dataForm.valid || loading">Izlash<img
+          *ngIf="loading" src="/assets/images/spinner.svg" class="spinner-load"></button>
+    </div>
+  </form>
+</div>
+
+
+
+<div class="sweet_alert-content overflow-auto" [ngClass]="{'open':alertShowSearchAccess}">
+  <form class="sweet_alert-body" (ngSubmit)="getDataFilterAccess()" #dataForm="ngForm" *ngIf="filterAccess">
+    <h2 class="sweet_alert-title">Filtr</h2>
+    <div class="sweet_alert-inner">
+      <div class=" mb-3">
+        <label class="form-label required">Nima bo'yicha filter qilasiz?</label>
+        <select class="form-control" name="box3" (ngModelChange)="onChangeFilter($event)" [(ngModel)]="filterAccess.status">
+          <option value="cash">Naqt</option>
+          <option value="credit">Nasiya</option>
+          <option value="in_stock">Sotuvda</option>
+        </select>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label">Yetkazib beruvchi</label>
+        <input type="text" class="form-control " name="provider" [(ngModel)]="filterAccess.provider">
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label">Seriya nomeri</label>
+        <input type="text" class="form-control" name="seria_number" [(ngModel)]="filterAccess.seria_number">
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="form-label">Model</label>
+        <input type="text" class="form-control" name="model" [(ngModel)]="filterAccess.model">
+      </div>
+      <div class="form-group mb-3">
+        <label class="form-label">Akkount (Gmail)</label>
+        <input type="text" class="form-control" name="account" [(ngModel)]="filterAccess.account">
+      </div>
+    </div>
+    <div class="sweet_alert-buttons">
+      <button class="btn btn-outline-secondary btn-r" type="button" [disabled]="loading"
+        (click)="closeAlerPopup()">Yopish</button>
+      <button type="submit" class="btn btn-primary btn-l" [disabled]="!dataForm.valid || loading">Izlash<img
+          *ngIf="loading" src="/assets/images/spinner.svg" class="spinner-load"></button>
+    </div>
+  </form>
+</div>

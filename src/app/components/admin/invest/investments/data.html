@@ -1,0 +1,71 @@
+<section class="container-fluid" *ngIf="permissions.can('index', 'InvestmentController')">
+    <div class="row mt-3">
+      <div class="col">
+        <h4 class="page-title mb-3">Investitsiyalar</h4>
+      </div>
+      <div class="col-auto d-flex align-items-center mb-2">
+        <a *ngIf="permissions.can('update', 'InvestmentController')" routerLink="/investments/add" class="btn btn-outline-primary"><i class="ti-plus me-1"></i>Qo'shish</a>
+      </div>
+    </div>
+  
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered table-centered">
+            <thead>
+              <tr>
+                <th>Investor</th>
+                <th>Summa</th>
+                <th>Sana</th>
+                <th [width]="80">Harakatlar</th>
+              </tr>
+            </thead>
+            <tbody *ngIf="dataItems && dataItems.length > 0">
+              <tr *ngFor="let item of dataItems; let i = index">
+                <td>{{item.investor}}</td>
+                <td>{{item.amount | currency :'USD' | replace:',':' '}}</td>
+                <td>{{item.created_at | date : 'dd.MM.YYYY HH:mm'}}</td>
+                <td>
+                  <div class="dropdown d-inline-block" ngbDropdown container="body">
+                    <a class="dropdown-toggle arrow-none" role="button" ngbDropdownToggle>
+                      <i class="las la-ellipsis-v font-20 text-muted"></i>
+                    </a>
+                    <div class="dropdown-menu-right" ngbDropdownMenu>
+                      <a class="dropdown-item" routerLink="/investments/{{item.id}}">Tahrirlash</a>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+            <tbody *ngIf="dataItems && dataItems.length == 0">
+              <tr>
+                <td colspan="8" align="center" valign="top" class="dataTables_empty">Jadvalda ma'lumotlar
+                  yo'q</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+  
+        <div class="table-footer">
+          <ngb-pagination *ngIf="dataItems" [collectionSize]="totalPage" [pageSize]="pageSize" [(page)]="currentPage"
+            [maxSize]="4" [rotate]="true" (pageChange)="pageChanged($event)">
+            <ng-template ngbPaginationPrevious>&laquo; Oldingisi</ng-template>
+            <ng-template ngbPaginationNext>Keyingi &raquo;</ng-template>
+          </ngb-pagination>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="row" *ngIf="!permissions.can('index', 'InvestmentController')">
+    <div class="col-lg-5 mx-auto">
+      <div class="card mt-5">
+        <div class="card-body">
+          <div class="ex-page-content text-center">
+            <h1 class="mt-5 mb-4">403!</h1>
+            <h5 class="font-16 text-muted mb-5">Bu sahifaga kirish taqiqlangan</h5>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>

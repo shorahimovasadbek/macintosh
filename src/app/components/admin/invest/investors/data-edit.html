@@ -1,0 +1,81 @@
+<section class="container-fluid" *ngIf="is_access">
+  <h4 class="page-title mb-3">Investorlar</h4>
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink="/investors">Investorlar</a></li>
+    <li class="breadcrumb-item active">Investor</li>
+  </ol>
+
+  <form #dataForm="ngForm" *ngIf="data">
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="card">
+          <div class="card-body">
+            <div class="row">
+              <div class="mb-3">
+                <label class="form-label required">F.I.O</label>
+                <input class="form-control" type="text" name="name" [(ngModel)]="data.name" required>
+              </div>
+
+              <div class="col-sm-6 mb-3">
+                <label class="form-label required">Passport</label>
+                <input class="form-control" type="text" name="passport" [(ngModel)]="data.passport" required>
+              </div>
+
+              <div class="col-sm-6">
+                <label class="form-label">Telefon</label>
+                <div class="input-group mb-3">
+                  <span class="input-group-text" style="font-size:14px;">+998</span>
+                  <input type="text" class="form-control " name="phone1" placeholder="Telefon raqamni kiriting"
+                    [(ngModel)]="data.phone" maxlength="12" mask="99 999 99 99">
+                </div>
+              </div>
+
+              <div class="mb-3 col-sm-6">
+                <label class="form-label required">Foiz</label>
+                <input class="form-control" type="number" name="percentage" [(ngModel)]="data.percentage" required>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      
+    </div>
+    <div class="mb-3">
+      <button *ngIf="data?.id" class="btn btn-danger btn-r" type="button" [disabled]="loading"
+        (click)="removeData()">Oʻchirish</button>
+      <button type="button" (click)="patchData()" class="btn btn-primary" [disabled]="!dataForm.valid || loading">
+        Saqlash <img *ngIf="loading" src="/assets/images/spinner.svg" class="spinner-load"></button>
+    </div>
+  </form>
+</section>
+
+
+<div class="sweet_alert-content removed" [ngClass]="{'open':alertShowRemoved}">
+  <div class="sweet_alert-body" *ngIf="data">
+    <h2 class="sweet_alert-title">Ishonchingiz komilmi ?</h2>
+    <div class="sweet_alert-inner">
+      <h5 class="text-center text-muted">Ma'lumotni o'chirishga ishonchingiz komilmi ?</h5>
+    </div>
+    <div class="sweet_alert-buttons">
+      <button class="btn btn-outline-secondary btn-r" type="button" [disabled]="loading"
+        (click)="closeAlerPopup()">Bekor qilish </button>
+      <button type="button" class="btn btn-danger" [disabled]="loading" (click)="deleteData()"> O'chirish <img
+          *ngIf="loading" src="/assets/images/spinner.svg" class="spinner-load"></button>
+    </div>
+  </div>
+</div>
+
+<section class="row" *ngIf="!is_access">
+  <div class="col-lg-5 mx-auto">
+    <div class="card mt-5">
+      <div class="card-body">
+        <div class="ex-page-content text-center">
+          <h1 class="mt-5 mb-4">403!</h1>
+          <h5 class="font-16 text-muted mb-5">Bu sahifaga kirishga huquqingiz yo'q</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

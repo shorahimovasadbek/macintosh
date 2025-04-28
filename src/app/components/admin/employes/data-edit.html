@@ -1,0 +1,169 @@
+<section class="container-fluid" *ngIf="permission.can('update', 'AdminController')">
+  <h4 class="page-title mb-3">Xodimlar</h4>
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink="/employee">Xodimlar</a></li>
+    <li class="breadcrumb-item active">Xodim</li>
+  </ol>
+
+
+  <form #dataForm="ngForm">
+    <nav ngbNav #nav="ngbNav" class="nav-tabs">
+      <ng-container ngbNavItem>
+        <a ngbNavLink>Shaxsiy ma'lumotlari</a>
+        <ng-template ngbNavContent>
+          <div class="row">
+            <div class="col-sm-8">
+              <div class="card">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="mb-3 col-sm-6">
+                      <label class="form-label required">Telefon</label>
+                      <div class="input-group">
+                        <span class="input-group-text">+998</span>
+                        <input type="text" class="form-control" name="phone1" placeholder="Telefon raqamini kiriting"
+                          [(ngModel)]="data.phone1" maxlength="9" mask="999999999" required>
+                      </div>
+                    </div>
+
+                    <div class="mb-3 col-sm-6">
+                      <label class="form-label">Telefon</label>
+                      <div class="input-group">
+                        <span class="input-group-text">+998</span>
+                        <input type="text" class="form-control" name="phone2" placeholder="Telefon raqamini kiriting"
+                          [(ngModel)]="data.phone2" maxlength="9" mask="999999999">
+                      </div>
+                    </div>
+
+                    <div class="mb-3 col-sm-6">
+                      <label class="form-label">Email</label>
+                      <input type="text" class="form-control" name="email" [(ngModel)]="data.email">
+                    </div>
+
+                    <div class="col-sm-6">
+                      <label class="form-label">Role</label>
+                      <ngx-select [items]="roleData" name="id" optionTextField="label" optionValueField="id"
+                        placeholder="Roleni tanlang" mask="separator.2" [(ngModel)]="data.role_id">
+                        <ng-template let-option>
+                          {{ option.label }}
+                        </ng-template>
+                      </ngx-select>
+                    </div> 
+
+                    <div class="mb-3 col-sm-6">
+                      <label class="form-label">Password</label>
+                      <input class="form-control" name="password" type="password" [(ngModel)]="data.password" required>
+                    </div>
+                    <div class="mb-3 col-sm-6">
+                      <label class="form-label">Confirm_password</label>
+                      <input class="form-control" name="confirm_password" type="password"
+                        [(ngModel)]="data.confirm_password" required>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </ng-container>
+
+      <ng-container ngbNavItem>
+        <a ngbNavLink>Passport ma'lumotlari</a>
+        <ng-template ngbNavContent>
+          <div class="row">
+            <div class="col-sm-8">
+              <div class="card">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="mb-3 col-sm-4">
+                      <label class="form-label required">Familiya</label>
+                      <input class="form-control" name="surname" type="text" [(ngModel)]="data.surname" required>
+                    </div>
+                    <div class="mb-3 col-sm-4">
+                      <label class="form-label required">Ismi</label>
+                      <input class="form-control" name="name" type="text" [(ngModel)]="data.name" required>
+                    </div>
+                    <div class="mb-3 col-sm-4">
+                      <label class="form-label">Sharifi</label>
+                      <input class="form-control" name="middle_name" type="text" [(ngModel)]="data.middle_name">
+                    </div>
+                    <div class="mb-3 col-sm-4">
+                      <label class="form-label required">Pasport seriyasi / Karta raqami</label>
+                      <input class="form-control" name="passport" type="text" [(ngModel)]="data.passport" required>
+                    </div>
+                    <div class="mb-3 col-sm-4">
+                      <label class="form-label">Kim tomonidan berilgan</label>
+                      <input class="form-control" name="place_of_issue" type="text" [(ngModel)]="data.place_of_issue">
+                    </div>
+                    <div class="mb-3 col-sm-4">
+                      <label class="form-label">Qachon berilgan</label>
+                      <input class="form-control" name="date_of_issue" type="date" [(ngModel)]="data.date_of_issue">
+                    </div>
+                    <div class="mb-3 col-sm-4">
+                      <label class="form-label required">Tug'ilgan yili</label>
+                      <input class="form-control" name="date_of_birth" type="date" [(ngModel)]="data.date_of_birth">
+                    </div>
+                    <div class="mb-3 col-sm-4">
+                      <label class="form-label required">Jinsi</label>
+                      <select class="form-select" name="gender" [(ngModel)]="data.gender" required>
+                        <option value="1">Erkak</option>
+                        <option value="0">Ayol</option>
+                        <option [value]="data.gender" selected hidden disabled>Jinsni tanlang</option>
+                      </select>
+                    </div>
+                    <div class="mb-3 col-sm-6">
+                      <label class="form-label">Tug'ilgan joyi</label>
+                      <input class="form-control" name="place_of_birth" type="text" [(ngModel)]="data.place_of_birth">
+                    </div>
+                    <div class="mb-3 col-sm-6">
+                      <label class="form-label">Yashash manzili</label>
+                      <input class="form-control" name="place_of_residence" type="text"
+                        [(ngModel)]="data.place_of_residence">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </ng-container>
+    </nav>
+
+    
+    <div [ngbNavOutlet]="nav" class="mb-2"></div>
+
+    <div class="mb-3">
+      <button class="btn btn-danger me-2" type="button" [disabled]="loading" (click)="removeData()"
+        *ngIf="data.id">O'chirish</button>
+      <button type="submit" (click)="patchData()" class="btn btn-primary" [disabled]="!dataForm.valid || loading">
+        Saqlash <img *ngIf="loading" src="/assets/images/spinner.svg" class="spinner-load"></button>
+    </div>
+  </form>
+</section>
+
+<div class="sweet_alert-content removed" [ngClass]="{'open':alertShowRemoved}">
+  <div class="sweet_alert-body" *ngIf="data">
+    <h2 class="sweet_alert-title">Ishonchingiz komilmi ?</h2>
+    <div class="sweet_alert-inner">
+      <h5 class="text-center text-muted">Foydalanuvchini o'chirishga ishonchingiz komilmi ?</h5>
+    </div>
+    <div class="sweet_alert-buttons">
+      <button class="btn btn-outline-secondary btn-r" type="button" [disabled]="loading"
+        (click)="closeAlerPopup()">Bekor qilish </button>
+      <button type="button" class="btn btn-danger" [disabled]="loading" (click)="deleteData()"> O'chirish <img
+          *ngIf="loading" src="/assets/images/spinner.svg" class="spinner-load"></button>
+    </div>
+  </div>
+</div>
+
+<section class="row" *ngIf="!permission.can('update', 'AdminController')">
+  <div class="col-lg-5 mx-auto">
+    <div class="card mt-5">
+      <div class="card-body">
+        <div class="ex-page-content text-center">
+          <h1 class="mt-5 mb-4">403!</h1>
+          <h5 class="font-16 text-muted mb-5">Bu sahifaga kirishga huquqingiz yo'q</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
